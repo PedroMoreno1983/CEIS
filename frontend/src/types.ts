@@ -105,6 +105,11 @@ export interface Aplicacion {
   puntaje_correctas?: number | null;
   puntaje_total?: number | null;
   creado_en: string;
+  es_adaptativa?: boolean;
+  theta_actual?: number | null;
+  se_actual?: number | null;
+  max_items?: number | null;
+  se_objetivo?: number | null;
 }
 
 export interface AplicacionParaResponder {
