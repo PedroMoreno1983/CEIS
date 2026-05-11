@@ -4,6 +4,10 @@ import GeneratorPage from "./pages/GeneratorPage";
 import TestsPage from "./pages/TestsPage";
 import AplicacionesPage from "./pages/AplicacionesPage";
 import AplicarPage from "./pages/AplicarPage";
+import ColegiosPage from "./pages/ColegiosPage";
+import DocentesPage from "./pages/DocentesPage";
+import CursosPage from "./pages/CursosPage";
+import EstudiantesPage from "./pages/EstudiantesPage";
 
 export default function App() {
   const location = useLocation();
@@ -24,11 +28,16 @@ export default function App() {
           <Link to="/" className="text-xl font-bold tracking-tight">
             CEIS · Generador de Instrumentos
           </Link>
-          <nav className="flex gap-6 text-sm">
+          <nav className="flex items-center gap-5 text-sm">
             <NavLink to="/" end className={navClass}>Banco</NavLink>
             <NavLink to="/generar" className={navClass}>Generar</NavLink>
             <NavLink to="/pruebas" className={navClass}>Pruebas</NavLink>
             <NavLink to="/aplicaciones" className={navClass}>Aplicaciones</NavLink>
+            <span className="text-slate-600">|</span>
+            <NavLink to="/colegios" className={navClass}>Colegios</NavLink>
+            <NavLink to="/cursos" className={navClass}>Cursos</NavLink>
+            <NavLink to="/estudiantes" className={navClass}>Estudiantes</NavLink>
+            <NavLink to="/docentes" className={navClass}>Docentes</NavLink>
           </nav>
         </div>
       </header>
@@ -39,6 +48,10 @@ export default function App() {
           <Route path="/generar" element={<GeneratorPage />} />
           <Route path="/pruebas" element={<TestsPage />} />
           <Route path="/aplicaciones" element={<AplicacionesPage />} />
+          <Route path="/colegios" element={<ColegiosPage />} />
+          <Route path="/cursos" element={<CursosPage />} />
+          <Route path="/estudiantes" element={<EstudiantesPage />} />
+          <Route path="/docentes" element={<DocentesPage />} />
         </Routes>
       </main>
 
