@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { ColegiosAPI, CursosAPI, DocentesAPI } from "../api-gestion";
 import type { Colegio, Curso, Docente, Estudiante, NivelCurso } from "../types-gestion";
 import { NIVEL_CURSO_LABELS, NIVEL_CURSO_ORDER } from "../types-gestion";
@@ -229,8 +229,8 @@ export default function CursosPage() {
               <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-400">No hay cursos en este filtro.</td></tr>
             )}
             {cursos.map((c) => (
-              <>
-                <tr key={c.id} className="hover:bg-slate-50">
+              <Fragment key={c.id}>
+                <tr className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-900 cursor-pointer" onClick={() => abrirEditar(c)}>
                     {NIVEL_CURSO_LABELS[c.nivel]} {c.letra} <span className="text-slate-400 font-normal">· {c.ano}</span>
                   </td>
@@ -269,7 +269,7 @@ export default function CursosPage() {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>

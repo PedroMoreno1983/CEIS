@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .routers import items, generacion, instrumentos, aplicaciones
 from .routers import colegios, docentes, cursos, estudiantes
+from .routers import asignaturas, periodos, libro
+from .routers import admin
 
 # Resolver UPLOADS_DIR: env var > volumen Railway /app/uploads > path relativo (local)
 _env = os.environ.get("UPLOADS_DIR")
@@ -41,6 +43,10 @@ app.include_router(colegios.router, prefix="/api")
 app.include_router(docentes.router, prefix="/api")
 app.include_router(cursos.router, prefix="/api")
 app.include_router(estudiantes.router, prefix="/api")
+app.include_router(asignaturas.router, prefix="/api")
+app.include_router(periodos.router, prefix="/api")
+app.include_router(libro.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
 @app.get("/api/health")
