@@ -8,6 +8,15 @@ import ColegiosPage from "./pages/ColegiosPage";
 import DocentesPage from "./pages/DocentesPage";
 import CursosPage from "./pages/CursosPage";
 import EstudiantesPage from "./pages/EstudiantesPage";
+import EstudiantePerfilPage from "./pages/EstudiantePerfilPage";
+import AsignaturasPage from "./pages/AsignaturasPage";
+import PeriodosPage from "./pages/PeriodosPage";
+import LibroClasesPage from "./pages/LibroClasesPage";
+import ApoderadosPage from "./pages/ApoderadosPage";
+import MensajesPage from "./pages/MensajesPage";
+import PlanesMejoraPage from "./pages/PlanesMejoraPage";
+import PIEPage from "./pages/PIEPage";
+import DashboardPage from "./pages/DashboardPage";
 
 export default function App() {
   const location = useLocation();
@@ -29,7 +38,7 @@ export default function App() {
             CEIS · Generador de Instrumentos
           </Link>
           <nav className="flex items-center gap-5 text-sm">
-            <NavLink to="/" end className={navClass}>Banco</NavLink>
+            <NavLink to="/" end className={navClass}>Dashboard</NavLink>
             <NavLink to="/generar" className={navClass}>Generar</NavLink>
             <NavLink to="/pruebas" className={navClass}>Pruebas</NavLink>
             <NavLink to="/aplicaciones" className={navClass}>Aplicaciones</NavLink>
@@ -38,20 +47,38 @@ export default function App() {
             <NavLink to="/cursos" className={navClass}>Cursos</NavLink>
             <NavLink to="/estudiantes" className={navClass}>Estudiantes</NavLink>
             <NavLink to="/docentes" className={navClass}>Docentes</NavLink>
+            <NavLink to="/apoderados" className={navClass}>Apoderados</NavLink>
+            <span className="text-slate-600">|</span>
+            <NavLink to="/mensajes" className={navClass}>Mensajes</NavLink>
+            <NavLink to="/planes" className={navClass}>Planes</NavLink>
+            <NavLink to="/pie" className={navClass}>PIE</NavLink>
+            <span className="text-slate-600">|</span>
+            <NavLink to="/libro" className={navClass}>Libro</NavLink>
+            <NavLink to="/asignaturas" className={navClass}>Asignaturas</NavLink>
+            <NavLink to="/periodos" className={navClass}>Períodos</NavLink>
           </nav>
         </div>
       </header>
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
         <Routes>
-          <Route path="/" element={<BankPage />} />
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/banco" element={<BankPage />} />
           <Route path="/generar" element={<GeneratorPage />} />
           <Route path="/pruebas" element={<TestsPage />} />
           <Route path="/aplicaciones" element={<AplicacionesPage />} />
           <Route path="/colegios" element={<ColegiosPage />} />
           <Route path="/cursos" element={<CursosPage />} />
           <Route path="/estudiantes" element={<EstudiantesPage />} />
+          <Route path="/estudiantes/:id" element={<EstudiantePerfilPage />} />
           <Route path="/docentes" element={<DocentesPage />} />
+          <Route path="/libro" element={<LibroClasesPage />} />
+          <Route path="/asignaturas" element={<AsignaturasPage />} />
+          <Route path="/periodos" element={<PeriodosPage />} />
+          <Route path="/apoderados" element={<ApoderadosPage />} />
+          <Route path="/mensajes" element={<MensajesPage />} />
+          <Route path="/planes" element={<PlanesMejoraPage />} />
+          <Route path="/pie" element={<PIEPage />} />
         </Routes>
       </main>
 

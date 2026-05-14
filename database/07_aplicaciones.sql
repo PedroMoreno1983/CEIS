@@ -42,3 +42,15 @@ CREATE TABLE respuesta (
 );
 
 CREATE INDEX idx_respuesta_aplicacion ON respuesta(aplicacion_id);
+
+-- ------------------------------------------------------------
+-- Migración: aplicacion → vincular opcionalmente a entidades de gestión
+-- (movido desde 06_schema_gestion.sql para respetar orden de creación)
+-- ------------------------------------------------------------
+
+ALTER TABLE aplicacion
+  ADD COLUMN IF NOT EXISTS estudiante_id UUID REFERENCES gestion.estudiante(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS curso_id      UUID REFERENCES gestion.curso(id)      ON DELETE SET NULL;
+
+CREATE INDEX idx_aplicacion_estudiante ON aplicacion(estudiante_id);
+CREATE INDEX idx_aplicacion_curso      ON aplicacion(curso_id);

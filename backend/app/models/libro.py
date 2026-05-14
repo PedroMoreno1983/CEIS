@@ -212,3 +212,32 @@ class Anotacion(Base):
     categoria: Mapped[str | None] = mapped_column(Text)
     descripcion: Mapped[str] = mapped_column(Text, nullable=False)
     creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+EstadoCitacionEnum = ENUM(
+    "pendiente", "confirmada", "cumplida", "cancelada", "no_asiste",
+    name="estado_citacion", schema=SCHEMA, create_type=False,
+)
+
+class Citacion(Base):
+    __tablename__ = "citacion"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    estudiante_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(f"{SCHEMA}.estudiante.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    apoderado_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(f"{SCHEMA}.apoderado.id", ondelete="SET NULL"),
+    )
+    motivo: Mapped[str] = mapped_column(Text, nullable=False)
+    fecha_citacion: Mapped[date] = mapped_column(Date, nullable=False)
+    hora: Mapped[str | None] = mapped_column(Text)
+    lugar: Mapped[str | None] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(EstadoCitacionEnum, nullable=False, default="pendiente")
+    resultado: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())

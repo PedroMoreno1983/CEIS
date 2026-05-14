@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ColegiosAPI, CursosAPI, EstudiantesAPI } from "../api-gestion";
 import type {
   Colegio, Curso, EstadoEstudiante, Estudiante, Genero,
@@ -364,6 +365,12 @@ export default function EstudiantesPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right space-x-2">
+                  <Link
+                    to={`/estudiantes/${e.id}`}
+                    className="text-xs px-2 py-1 rounded border border-ceis-primary text-ceis-primary hover:bg-blue-50"
+                  >
+                    Ver perfil
+                  </Link>
                   <button
                     onClick={() => abrirMatricular(e)}
                     className="text-xs px-2 py-1 rounded border border-slate-300 hover:bg-slate-100"

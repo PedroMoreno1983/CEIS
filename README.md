@@ -26,7 +26,7 @@ sistema/
 │   │   ├── core/         config, database
 │   │   ├── models/       SQLAlchemy
 │   │   ├── schemas/      Pydantic
-│   │   ├── routers/      items, generación, instrumentos
+│   │   ├── routers/      items, generación, instrumentos, aplicaciones, gestión escolar, libro de clases
 │   │   ├── services/     prompts y servicio LLM
 │   │   └── main.py
 │   ├── requirements.txt
@@ -36,11 +36,19 @@ sistema/
 │   ├── 02_seed_5to6to.sql
 │   ├── 03_seed_8basico.sql
 │   ├── 04_seed_2medio.sql
-│   └── 05_seed_4medio.sql
+│   ├── 05_seed_4medio.sql
+│   ├── 06_migration_visuales.sql
+│   ├── 06_schema_gestion.sql
+│   ├── 07_aplicaciones.sql
+│   ├── 07_seed_gestion.sql
+│   ├── 08_cat.sql
+│   ├── 08_schema_libro_clases.sql
+│   ├── 09_seed_libro_clases.sql
+│   └── 10_schema_familias_planes_pie.sql
 └── frontend/             React + Vite
     └── src/
-        ├── pages/        BankPage, GeneratorPage
-        ├── components/   ItemCard
+        ├── pages/        BankPage, GeneratorPage, AplicaciónPage, LibroPage
+        ├── components/   ItemCard, AppLayout
         ├── api.ts
         ├── types.ts
         ├── App.tsx
@@ -61,6 +69,14 @@ psql -U postgres -d ceis_instrumentos -f database/02_seed_5to6to.sql
 psql -U postgres -d ceis_instrumentos -f database/03_seed_8basico.sql
 psql -U postgres -d ceis_instrumentos -f database/04_seed_2medio.sql
 psql -U postgres -d ceis_instrumentos -f database/05_seed_4medio.sql
+psql -U postgres -d ceis_instrumentos -f database/06_migration_visuales.sql
+psql -U postgres -d ceis_instrumentos -f database/06_schema_gestion.sql
+psql -U postgres -d ceis_instrumentos -f database/07_aplicaciones.sql
+psql -U postgres -d ceis_instrumentos -f database/07_seed_gestion.sql
+psql -U postgres -d ceis_instrumentos -f database/08_cat.sql
+psql -U postgres -d ceis_instrumentos -f database/08_schema_libro_clases.sql
+psql -U postgres -d ceis_instrumentos -f database/09_seed_libro_clases.sql
+psql -U postgres -d ceis_instrumentos -f database/10_schema_familias_planes_pie.sql
 ```
 
 ### 2. Backend

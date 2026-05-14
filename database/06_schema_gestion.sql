@@ -157,15 +157,6 @@ CREATE TABLE gestion.estudiante_curso (
 );
 
 -- ------------------------------------------------------------
--- Migración: aplicacion → vincular opcionalmente a entidades de gestión
--- Mantiene compatibilidad con el flujo actual (strings sueltos)
--- ------------------------------------------------------------
-
-ALTER TABLE aplicacion
-  ADD COLUMN IF NOT EXISTS estudiante_id UUID REFERENCES gestion.estudiante(id) ON DELETE SET NULL,
-  ADD COLUMN IF NOT EXISTS curso_id      UUID REFERENCES gestion.curso(id)      ON DELETE SET NULL;
-
--- ------------------------------------------------------------
 -- Índices
 -- ------------------------------------------------------------
 
@@ -186,9 +177,6 @@ CREATE INDEX idx_estudiante_apellido_trgm ON gestion.estudiante USING GIN (apell
 
 CREATE INDEX idx_estcurso_estudiante     ON gestion.estudiante_curso(estudiante_id, activo);
 CREATE INDEX idx_estcurso_curso          ON gestion.estudiante_curso(curso_id, activo);
-
-CREATE INDEX idx_aplicacion_estudiante   ON aplicacion(estudiante_id);
-CREATE INDEX idx_aplicacion_curso        ON aplicacion(curso_id);
 
 -- ------------------------------------------------------------
 -- Trigger: actualizar `actualizado_en` automáticamente

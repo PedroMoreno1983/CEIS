@@ -6,6 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from .routers import items, generacion, instrumentos, aplicaciones
 from .routers import colegios, docentes, cursos, estudiantes
 from .routers import asignaturas, periodos, libro
+from .routers import apoderados, mensajes, planes, pie
+from .routers import dashboard
+from .routers import citaciones
 from .routers import admin
 
 # Resolver UPLOADS_DIR: env var > volumen Railway /app/uploads > path relativo (local)
@@ -27,7 +30,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,6 +49,12 @@ app.include_router(estudiantes.router, prefix="/api")
 app.include_router(asignaturas.router, prefix="/api")
 app.include_router(periodos.router, prefix="/api")
 app.include_router(libro.router, prefix="/api")
+app.include_router(apoderados.router, prefix="/api")
+app.include_router(mensajes.router, prefix="/api")
+app.include_router(planes.router, prefix="/api")
+app.include_router(pie.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(citaciones.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 
 

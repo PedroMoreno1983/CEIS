@@ -206,3 +206,233 @@ class EstudianteCurso(Base):
     numero_lista: Mapped[int | None] = mapped_column(SmallInteger)
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+# ------------------------------------------------------------
+# Apoderados
+# ------------------------------------------------------------
+
+TipoApoderadoEnum = ENUM(
+    "padre", "madre", "tutor_legal", "abuelo", "abuela", "tio", "tia", "otro",
+    name="tipo_apoderado", schema=SCHEMA, create_type=False,
+)
+
+class Apoderado(Base):
+    __tablename__ = "apoderado"
+    __table_args__ = (
+        UniqueConstraint("colegio_id", "rut", name="apoderado_colegio_rut_uk"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    colegio_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.colegio.id", ondelete="CASCADE"), nullable=False
+    )
+    rut: Mapped[str | None] = mapped_column(Text)
+    nombres: Mapped[str] = mapped_column(Text, nullable=False)
+    apellido_paterno: Mapped[str] = mapped_column(Text, nullable=False)
+    apellido_materno: Mapped[str | None] = mapped_column(Text)
+    email: Mapped[str | None] = mapped_column(Text)
+    telefono: Mapped[str | None] = mapped_column(Text)
+    telefono_alt: Mapped[str | None] = mapped_column(Text)
+    profesion: Mapped[str | None] = mapped_column(Text)
+    direccion: Mapped[str | None] = mapped_column(Text)
+    comuna: Mapped[str | None] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(EstadoPersonaEnum, nullable=False, default="activo")
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class EstudianteApoderado(Base):
+    __tablename__ = "estudiante_apoderado"
+    __table_args__ = (
+        UniqueConstraint("estudiante_id", "apoderado_id", name="estudiante_apoderado_uk"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    estudiante_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.estudiante.id", ondelete="CASCADE"), nullable=False
+    )
+    apoderado_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.apoderado.id", ondelete="CASCADE"), nullable=False
+    )
+    tipo: Mapped[str] = mapped_column(TipoApoderadoEnum, nullable=False, default="otro")
+    es_principal: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    vive_con: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    retira_estudiante: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+# ------------------------------------------------------------
+# Mensajes
+# ------------------------------------------------------------
+
+TipoMensajeEnum = ENUM(
+    "individual", "curso", "general",
+    name="tipo_mensaje", schema=SCHEMA, create_type=False,
+)
+
+class Mensaje(Base):
+    __tablename__ = "mensaje"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    colegio_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.colegio.id", ondelete="CASCADE"), nullable=False
+    )
+    autor_docente_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.docente.id", ondelete="SET NULL")
+    )
+    tipo: Mapped[str] = mapped_column(TipoMensajeEnum, nullable=False, default="individual")
+    asunto: Mapped[str] = mapped_column(Text, nullable=False)
+    contenido: Mapped[str] = mapped_column(Text, nullable=False)
+    importante: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    curso_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.curso.id", ondelete="SET NULL")
+    )
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class MensajeDestinatario(Base):
+    __tablename__ = "mensaje_destinatario"
+    __table_args__ = (
+        UniqueConstraint("mensaje_id", "apoderado_id", name="mensaje_destinatario_uk"),
+        {"schema": SCHEMA},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    mensaje_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.mensaje.id", ondelete="CASCADE"), nullable=False
+    )
+    apoderado_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.apoderado.id", ondelete="CASCADE"), nullable=False
+    )
+    estudiante_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.estudiante.id", ondelete="SET NULL")
+    )
+    leido_en: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+# ------------------------------------------------------------
+# Plan de mejora
+# ------------------------------------------------------------
+
+EstadoPlanEnum = ENUM(
+    "borrador", "activo", "logrado", "no_logrado", "cerrado",
+    name="estado_plan", schema=SCHEMA, create_type=False,
+)
+
+PrioridadObjetivoEnum = ENUM(
+    "alta", "media", "baja",
+    name="prioridad_objetivo", schema=SCHEMA, create_type=False,
+)
+
+EstadoObjetivoEnum = ENUM(
+    "pendiente", "en_curso", "logrado", "no_logrado",
+    name="estado_objetivo", schema=SCHEMA, create_type=False,
+)
+
+class PlanMejora(Base):
+    __tablename__ = "plan_mejora"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    estudiante_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.estudiante.id", ondelete="CASCADE"), nullable=False
+    )
+    autor_docente_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.docente.id", ondelete="SET NULL")
+    )
+    titulo: Mapped[str] = mapped_column(Text, nullable=False)
+    descripcion: Mapped[str | None] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(EstadoPlanEnum, nullable=False, default="borrador")
+    fecha_inicio: Mapped[date] = mapped_column(Date, nullable=False)
+    fecha_termino_estim: Mapped[date | None] = mapped_column(Date)
+    fecha_termino_real: Mapped[date | None] = mapped_column(Date)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class ObjetivoPlan(Base):
+    __tablename__ = "objetivo_plan"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.plan_mejora.id", ondelete="CASCADE"), nullable=False
+    )
+    descripcion: Mapped[str] = mapped_column(Text, nullable=False)
+    prioridad: Mapped[str] = mapped_column(PrioridadObjetivoEnum, nullable=False, default="media")
+    estado: Mapped[str] = mapped_column(EstadoObjetivoEnum, nullable=False, default="pendiente")
+    fecha_objetivo: Mapped[date | None] = mapped_column(Date)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class SeguimientoPlan(Base):
+    __tablename__ = "seguimiento_plan"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.plan_mejora.id", ondelete="CASCADE"), nullable=False
+    )
+    fecha: Mapped[date] = mapped_column(Date, nullable=False)
+    autor_docente_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.docente.id", ondelete="SET NULL")
+    )
+    descripcion: Mapped[str] = mapped_column(Text, nullable=False)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+# ------------------------------------------------------------
+# PIE
+# ------------------------------------------------------------
+
+TipoPieEnum = ENUM(
+    "permanente", "transitorio",
+    name="tipo_pie", schema=SCHEMA, create_type=False,
+)
+
+EstadoPieEnum = ENUM(
+    "activo", "egresado", "derivado", "cerrado",
+    name="estado_pie", schema=SCHEMA, create_type=False,
+)
+
+class PIEDiagnostico(Base):
+    __tablename__ = "pie_diagnostico"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    estudiante_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.estudiante.id", ondelete="CASCADE"), nullable=False
+    )
+    tipo: Mapped[str] = mapped_column(TipoPieEnum, nullable=False)
+    diagnostico: Mapped[str] = mapped_column(Text, nullable=False)
+    fecha_diagnostico: Mapped[date] = mapped_column(Date, nullable=False)
+    profesional_responsable: Mapped[str | None] = mapped_column(Text)
+    estado: Mapped[str] = mapped_column(EstadoPieEnum, nullable=False, default="activo")
+    fecha_ingreso_pie: Mapped[date | None] = mapped_column(Date)
+    fecha_egreso_pie: Mapped[date | None] = mapped_column(Date)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    actualizado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class PIEIntervencion(Base):
+    __tablename__ = "pie_intervencion"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    diagnostico_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey(f"{SCHEMA}.pie_diagnostico.id", ondelete="CASCADE"), nullable=False
+    )
+    fecha: Mapped[date] = mapped_column(Date, nullable=False)
+    profesional: Mapped[str] = mapped_column(Text, nullable=False)
+    duracion_minutos: Mapped[int | None] = mapped_column(SmallInteger)
+    descripcion: Mapped[str] = mapped_column(Text, nullable=False)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+    creado_en: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())

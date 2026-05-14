@@ -4,15 +4,15 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_USER: str = "postgres"
-    DB_PASSWORD: str = "idps2024"
+    DB_PASSWORD: str = ""
     DB_NAME: str = "ceis_instrumentos"
     DATABASE_URL: str | None = None  # Railway / hosting
     ANTHROPIC_API_KEY: str = ""
     LLM_MODEL: str = "claude-sonnet-4-6"
-    SECRET_KEY: str = "ceis-secret-key"
+    SECRET_KEY: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    AUTH_USERNAME: str = "ceis"
-    AUTH_PASSWORD: str = "ceis2024"
+    AUTH_USERNAME: str = ""
+    AUTH_PASSWORD: str = ""
 
     @property
     def database_url(self) -> str:

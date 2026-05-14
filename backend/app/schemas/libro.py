@@ -238,3 +238,44 @@ class AnotacionOut(AnotacionBase):
     docente_nombre: str | None = None
     asignatura_nombre: str | None = None
     model_config = {"from_attributes": True}
+
+
+# ------------------------------------------------------------
+# Citación
+# ------------------------------------------------------------
+
+EstadoCitacion = Literal["pendiente", "confirmada", "cumplida", "cancelada", "no_asiste"]
+
+class CitacionBase(BaseModel):
+    estudiante_id: uuid.UUID
+    apoderado_id: uuid.UUID | None = None
+    motivo: str = Field(..., min_length=1, max_length=500)
+    fecha_citacion: date
+    hora: str | None = None
+    lugar: str | None = None
+    estado: EstadoCitacion = "pendiente"
+    resultado: str | None = None
+
+
+class CitacionCreate(CitacionBase):
+    pass
+
+
+class CitacionUpdate(BaseModel):
+    apoderado_id: uuid.UUID | None = None
+    motivo: str | None = None
+    fecha_citacion: date | None = None
+    hora: str | None = None
+    lugar: str | None = None
+    estado: EstadoCitacion | None = None
+    resultado: str | None = None
+
+
+class CitacionOut(CitacionBase):
+    id: uuid.UUID
+    creado_en: datetime
+    actualizado_en: datetime
+    # Enriquecido
+    estudiante_nombre: str | None = None
+    apoderado_nombre: str | None = None
+    model_config = {"from_attributes": True}
