@@ -1,11 +1,11 @@
-import axios from "axios";
+import apiClient from "./api-client";
 import type {
   Colegio, Curso, Docente, Estudiante, EstudianteCursoLink,
   Apoderado, Mensaje, PlanMejora, ObjetivoPlan, SeguimientoPlan,
   PIEDiagnostico, PIEIntervencion,
 } from "./types-gestion";
 
-const api = axios.create({ baseURL: "/api" });
+const api = apiClient;
 
 // ---------- Colegios ----------
 

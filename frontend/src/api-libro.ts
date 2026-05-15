@@ -1,10 +1,10 @@
-import axios from "axios";
+import apiClient from "./api-client";
 import type {
   Anotacion, Asignatura, Asistencia, AsistenciaResumen,
   Calificacion, Carga, Periodo, Citacion,
 } from "./types-libro";
 
-const api = axios.create({ baseURL: "/api" });
+const api = apiClient;
 
 // ---------- Asignaturas + carga académica ----------
 

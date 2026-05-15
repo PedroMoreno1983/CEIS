@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const CEIS_ROUTES = ["/", "/generar", "/pruebas", "/aplicaciones"];
 
@@ -40,7 +41,6 @@ function SidebarLink({
 
 export default function Sidebar() {
   const module = useActiveModule();
-  const topAccent = module === "ceis" ? "border-blue-600" : "border-emerald-600";
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col border-r border-slate-800 z-40">
@@ -94,10 +94,32 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-slate-800 text-[10px] text-slate-500">
-        CEIS 2026 · v2.0
+      {/* Usuario + Logout */}
+      <div className="px-4 py-3 border-t border-slate-800">
+        <UserBar />
       </div>
     </aside>
+  );
+}
+
+function UserBar() {
+  const { usuario, logout } = useAuth();
+  if (!usuario) return null;
+  return (
+    <div className="flex items-center justify-between">
+      <div className="min-w-0">
+        <div className="text-xs font-medium text-white truncate">
+          {usuario.nombres} {usuario.apellido_paterno}
+        </div>
+        <div className="text-[10px] text-slate-400 capitalize truncate">{usuario.rol}</div>
+      </div>
+      <button
+        onClick={logout}
+        className="ml-2 text-xs text-slate-400 hover:text-white transition-colors shrink-0"
+        title="Cerrar sesión"
+      >
+        Salir
+      </button>
+    </div>
   );
 }

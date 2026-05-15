@@ -1,7 +1,7 @@
-import axios from "axios";
+import apiClient from "./api-client";
 import type { Alertas, Resumen } from "./types-dashboard";
 
-const api = axios.create({ baseURL: "/api" });
+const api = apiClient;
 
 export const DashboardAPI = {
   resumen: (colegio_id: string) =>

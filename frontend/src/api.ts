@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClient from "./api-client";
 import type {
   Item, ItemList, GeneracionRequest, GeneracionResponse,
   Nivel, Tipo, Estado, Origen, Instrumento, EnsamblarAutoRequest,
@@ -6,7 +6,7 @@ import type {
   SiguienteItemResponse,
 } from "./types";
 
-const api = axios.create({ baseURL: "/api" });
+const api = apiClient;
 
 export interface InventarioRow {
   nivel: Nivel;

@@ -1,12 +1,15 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
 import ModuleHeader from "./components/ModuleHeader";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import BankPage from "./pages/BankPage";
 import GeneratorPage from "./pages/GeneratorPage";
 import TestsPage from "./pages/TestsPage";
 import AplicacionesPage from "./pages/AplicacionesPage";
 import AplicarPage from "./pages/AplicarPage";
+import LoginPage from "./pages/LoginPage";
 
 import DashboardPage from "./pages/DashboardPage";
 import ColegiosPage from "./pages/ColegiosPage";
@@ -22,18 +25,7 @@ import MensajesPage from "./pages/MensajesPage";
 import PlanesMejoraPage from "./pages/PlanesMejoraPage";
 import PIEPage from "./pages/PIEPage";
 
-export default function App() {
-  const location = useLocation();
-  const esModoEstudiante = location.pathname.startsWith("/aplicar/");
-
-  if (esModoEstudiante) {
-    return (
-      <Routes>
-        <Route path="/aplicar/:codigo" element={<AplicarPage />} />
-      </Routes>
-    );
-  }
-
+function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <Sidebar />
@@ -68,5 +60,37 @@ export default function App() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  const location = useLocation();
+  const esModoEstudiante = location.pathname.startsWith("/aplicar/");
+  const esLogin = location.pathname === "/login";
+
+  if (esModoEstudiante) {
+    return (
+      <Routes>
+        <Route path="/aplicar/:codigo" element={<AplicarPage />} />
+      </Routes>
+    );
+  }
+
+  if (esLogin) {
+    return (
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </AuthProvider>
+    );
+  }
+
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
