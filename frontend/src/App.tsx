@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import ModuleHeader from "./components/ModuleHeader";
 
 import BankPage from "./pages/BankPage";
 import GeneratorPage from "./pages/GeneratorPage";
@@ -38,6 +39,7 @@ export default function App() {
       <Sidebar />
       <div className="flex-1 ml-64">
         <main className="max-w-7xl mx-auto px-8 py-8">
+          <ModuleHeader />
           <Routes>
             {/* Módulo CEIS — Instrumentos */}
             <Route path="/" element={<BankPage />} />

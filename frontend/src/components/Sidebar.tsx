@@ -1,4 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+
+const CEIS_ROUTES = ["/", "/generar", "/pruebas", "/aplicaciones"];
+
+function useActiveModule(): "ceis" | "gestion" {
+  const { pathname } = useLocation();
+  return CEIS_ROUTES.includes(pathname) ? "ceis" : "gestion";
+}
 
 function SidebarLink({
   to,
@@ -9,6 +16,9 @@ function SidebarLink({
   label: string;
   icon: string;
 }) {
+  const module = useActiveModule();
+  const activeBg = module === "ceis" ? "bg-blue-600" : "bg-emerald-600";
+
   return (
     <NavLink
       to={to}
@@ -17,7 +27,7 @@ function SidebarLink({
         [
           "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
           isActive
-            ? "bg-blue-600 text-white"
+            ? `${activeBg} text-white`
             : "text-slate-300 hover:bg-slate-800 hover:text-white",
         ].join(" ")
       }
@@ -29,8 +39,14 @@ function SidebarLink({
 }
 
 export default function Sidebar() {
+  const module = useActiveModule();
+  const topAccent = module === "ceis" ? "border-blue-600" : "border-emerald-600";
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col border-r border-slate-800 z-40">
+      {/* Top accent bar */}
+      <div className={`h-1 w-full ${module === "ceis" ? "bg-blue-600" : "bg-emerald-600"}`} />
+
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-800">
         <div className="text-lg font-bold tracking-tight leading-tight">
@@ -45,7 +61,7 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {/* Módulo CEIS */}
         <div>
-          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "ceis" ? "text-blue-400" : "text-slate-500"}`}>
             Módulo CEIS
           </div>
           <div className="space-y-1">
@@ -58,7 +74,7 @@ export default function Sidebar() {
 
         {/* Módulo Gestión */}
         <div>
-          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "gestion" ? "text-emerald-400" : "text-slate-500"}`}>
             Gestión Escolar
           </div>
           <div className="space-y-1">
