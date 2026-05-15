@@ -100,3 +100,30 @@ async def migrate_sql(
         driver = raw.driver_connection
         await driver.execute(payload.sql)
     return {"ok": True}
+
+
+@router.post("/seed-auth")
+async def seed_auth(x_admin_token: str | None = Header(None)):
+    """Crea usuario admin inicial si no existe."""
+    _check_token(x_admin_token)
+    from sqlalchemy import select, insert
+    from ..models.usuario import Usuario
+    from ..core.security import get_password_hash
+    from ..core.database import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(Usuario).where(Usuario.email == "admin@ceis.cl"))
+        if result.scalar_one_or_none():
+            return {"ok": True, "created": False, "message": "Usuario admin ya existe"}
+
+        user = Usuario(
+            email="admin@ceis.cl",
+            password_hash=get_password_hash("ceis2026"),
+            nombres="Administrador",
+            apellido_paterno="CEIS",
+            rol="admin",
+            activo=True,
+        )
+        session.add(user)
+        await session.commit()
+        return {"ok": True, "created": True, "usuario_id": str(user.id)}
