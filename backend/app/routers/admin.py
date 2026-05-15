@@ -5,7 +5,10 @@ import os
 import tarfile
 import tempfile
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, Header, HTTPException
+from fastapi import APIRouter, UploadFile, File, Header, HTTPException, Body
+from pydantic import BaseModel
+
+from ..core.database import engine
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -50,6 +53,10 @@ async def install_uploads(
                 member.name = parts[1]
                 if not member.name:
                     continue
+                # Sanitización contra path traversal
+                target = (UPLOADS_DIR / member.name).resolve()
+                if not str(target).startswith(str(UPLOADS_DIR.resolve())):
+                    continue
                 tar.extract(member, path=str(UPLOADS_DIR))
     finally:
         os.unlink(tmp_path)
@@ -75,3 +82,20 @@ async def uploads_status(x_admin_token: str | None = Header(None)):
         "exists": UPLOADS_DIR.exists(),
         "items_count": n_files,
     }
+
+
+class MigratePayload(BaseModel):
+    sql: str
+
+
+@router.post("/migrate")
+async def migrate_sql(
+    payload: MigratePayload,
+    x_admin_token: str | None = Header(None),
+):
+    """Ejecuta SQL raw en la base de datos. Solo para migraciones controladas."""
+    _check_token(x_admin_token)
+    from sqlalchemy import text
+    async with engine.begin() as conn:
+        await conn.execute(text(payload.sql))
+    return {"ok": True}

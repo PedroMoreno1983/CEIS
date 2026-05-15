@@ -10,6 +10,8 @@ from .routers import apoderados, mensajes, planes, pie
 from .routers import dashboard
 from .routers import citaciones
 from .routers import admin
+from .routers import auth
+from .models import usuario  # noqa: F401 — registra modelo
 
 # Resolver UPLOADS_DIR: env var > volumen Railway /app/uploads > path relativo (local)
 _env = os.environ.get("UPLOADS_DIR")
@@ -56,6 +58,7 @@ app.include_router(pie.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(citaciones.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 
 
 @app.get("/api/health")
