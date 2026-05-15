@@ -95,9 +95,8 @@ async def migrate_sql(
 ):
     """Ejecuta SQL raw en la base de datos. Solo para migraciones controladas."""
     _check_token(x_admin_token)
-    from sqlalchemy import text
-    statements = [s.strip() for s in payload.sql.split(";") if s.strip()]
     async with engine.begin() as conn:
-        for stmt in statements:
-            await conn.execute(text(stmt))
-    return {"ok": True, "statements": len(statements)}
+        raw = await conn.get_raw_connection()
+        driver = raw.driver_connection
+        await driver.execute(payload.sql)
+    return {"ok": True}
