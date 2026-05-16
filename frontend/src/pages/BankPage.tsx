@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { ItemsAPI } from "../api";
 import type { Item, Nivel, Tipo, Estado, Origen } from "../types";
 import { NIVEL_LABELS, TIPO_LABELS } from "../types";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import EmptyState from "../components/ui/EmptyState";
 import ItemCard from "../components/ItemCard";
 
 export default function BankPage() {
@@ -45,46 +48,50 @@ export default function BankPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Banco de Ítems</h1>
-        <p className="text-slate-600 mt-1">
-          {total} ítem{total !== 1 ? "s" : ""} en el banco
-        </p>
-      </div>
+      <PageHeader
+        title="Banco de Ítems"
+        subtitle={`${total} ítem${total !== 1 ? "s" : ""} en el banco`}
+      />
 
-      <div className="bg-white rounded-lg border border-slate-200 p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Select label="Nivel" value={nivel} onChange={(v) => setNivel(v as any)}>
-          <option value="">Todos los niveles</option>
-          {Object.entries(NIVEL_LABELS).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </Select>
-        <Select label="Tipo" value={tipo} onChange={(v) => setTipo(v as any)}>
-          <option value="">Todos los tipos</option>
-          {Object.entries(TIPO_LABELS).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </Select>
-        <Select label="Estado" value={estado} onChange={(v) => setEstado(v as any)}>
-          <option value="">Todos los estados</option>
-          <option value="borrador">Borrador</option>
-          <option value="revision">En revisión</option>
-          <option value="aprobado">Aprobado</option>
-          <option value="rechazado">Rechazado</option>
-        </Select>
-        <Select label="Origen" value={origen} onChange={(v) => setOrigen(v as any)}>
-          <option value="">Todos los orígenes</option>
-          <option value="original">Original CEIS</option>
-          <option value="generado">Generado por IA</option>
-        </Select>
-      </div>
+      <Card>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Select label="Nivel" value={nivel} onChange={(v) => setNivel(v as any)}>
+            <option value="">Todos los niveles</option>
+            {Object.entries(NIVEL_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </Select>
+          <Select label="Tipo" value={tipo} onChange={(v) => setTipo(v as any)}>
+            <option value="">Todos los tipos</option>
+            {Object.entries(TIPO_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </Select>
+          <Select label="Estado" value={estado} onChange={(v) => setEstado(v as any)}>
+            <option value="">Todos los estados</option>
+            <option value="borrador">Borrador</option>
+            <option value="revision">En revisión</option>
+            <option value="aprobado">Aprobado</option>
+            <option value="rechazado">Rechazado</option>
+          </Select>
+          <Select label="Origen" value={origen} onChange={(v) => setOrigen(v as any)}>
+            <option value="">Todos los orígenes</option>
+            <option value="original">Original CEIS</option>
+            <option value="generado">Generado por IA</option>
+          </Select>
+        </div>
+      </Card>
 
       {loading ? (
         <div className="text-center py-12 text-slate-500">Cargando ítems...</div>
       ) : items.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">
-          No hay ítems con estos filtros. Genera nuevos en la pestaña "Generar".
-        </div>
+        <Card>
+          <EmptyState
+            title="Sin resultados"
+            description="No hay ítems con estos filtros. Genera nuevos en la pestaña Generar."
+            icon="🗂️"
+          />
+        </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {items.map((it) => (
@@ -111,7 +118,7 @@ function Select({
     <label className="block text-sm">
       <span className="text-slate-700 font-medium">{label}</span>
       <select
-        className="mt-1 w-full rounded-md border-slate-300 border px-3 py-2 text-sm bg-white"
+        className="mt-1 w-full rounded-lg border-slate-300 border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
