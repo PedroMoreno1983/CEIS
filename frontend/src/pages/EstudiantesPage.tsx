@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ColegiosAPI, CursosAPI, EstudiantesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import Badge from "../components/ui/Badge";
+import SearchBar from "../components/ui/SearchBar";
+import Modal from "../components/ui/Modal";
+import DataTable from "../components/ui/DataTable";
 import type {
   Colegio, Curso, EstadoEstudiante, Estudiante, Genero,
 } from "../types-gestion";
@@ -54,7 +61,6 @@ export default function EstudiantesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Matrícula
   const [matricularEst, setMatricularEst] = useState<Estudiante | null>(null);
   const [matCursoId, setMatCursoId] = useState<string>("");
   const [matNumero, setMatNumero] = useState<string>("");
@@ -166,244 +172,240 @@ export default function EstudiantesPage() {
     await cargar();
   };
 
+  const columns = [
+    {
+      key: "nombre",
+      header: "Estudiante",
+      render: (e: Estudiante) => (
+        <span className="font-medium text-slate-900">
+          {e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}
+        </span>
+      ),
+    },
+    { key: "rut", header: "RUT", render: (e: Estudiante) => <span className="font-mono text-slate-600">{e.rut}</span> },
+    {
+      key: "curso",
+      header: "Curso actual",
+      render: (e: Estudiante) =>
+        e.curso_actual_label ? (
+          <span>{prettyCursoLabel(e.curso_actual_label)}</span>
+        ) : (
+          <span className="text-slate-400 italic">sin matrícula</span>
+        ),
+    },
+    {
+      key: "estado",
+      header: "Estado",
+      render: (e: Estudiante) => <Badge variant={estadoVariant(e.estado)}>{ESTADO_ESTUDIANTE_LABELS[e.estado]}</Badge>,
+    },
+    {
+      key: "acciones",
+      header: "",
+      width: "240px",
+      render: (e: Estudiante) => (
+        <div className="flex items-center gap-2 justify-end">
+          <Link
+            to={`/estudiantes/${e.id}`}
+            className="text-xs px-2 py-1 rounded border border-blue-600 text-blue-600 hover:bg-blue-50"
+          >
+            Ver perfil
+          </Link>
+          <Button variant="secondary" size="sm" onClick={() => abrirMatricular(e)}>
+            Matricular
+          </Button>
+          <button onClick={() => eliminar(e)} className="text-xs px-2 py-1 text-slate-400 hover:text-rose-600">
+            ✕
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Estudiantes</h1>
-          <p className="text-slate-600 mt-1">Identidad persistente por RUT. Matrículas activas y histórico longitudinal.</p>
-        </div>
-        <button
-          onClick={form ? cerrar : abrirNuevo}
-          disabled={!colegioId}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 disabled:opacity-50"
-        >
+      <PageHeader
+        title="Estudiantes"
+        subtitle="Identidad persistente por RUT. Matrículas activas y histórico longitudinal."
+      >
+        <Button onClick={form ? cerrar : abrirNuevo} disabled={!colegioId}>
           {form ? "Cancelar" : "+ Nuevo estudiante"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
-      <div className="flex items-center gap-3">
-        <select
-          value={colegioId}
-          onChange={(e) => setColegioId(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-        >
-          <option value="">— Selecciona colegio —</option>
-          {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-        </select>
-        <select
-          value={estado}
-          onChange={(e) => setEstado(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-        >
-          <option value="">Todos los estados</option>
-          {Object.entries(ESTADO_ESTUDIANTE_LABELS).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, apellido o RUT…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && cargar()}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
-        />
-        <button onClick={cargar} className="text-sm px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50">
-          Buscar
-        </button>
-      </div>
-
-      {form && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-900">{editId ? "Editar estudiante" : "Nuevo estudiante"}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Field label="RUT *">
-              <input value={form.rut} onChange={(e) => setForm({ ...form, rut: e.target.value })} placeholder="25.111.222-3" className={input} />
-            </Field>
-            <Field label="Nombres *">
-              <input value={form.nombres} onChange={(e) => setForm({ ...form, nombres: e.target.value })} className={input} />
-            </Field>
-            <Field label="Estado">
-              <select value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value as EstadoEstudiante })} className={`${input} bg-white`}>
-                {Object.entries(ESTADO_ESTUDIANTE_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Apellido paterno *">
-              <input value={form.apellido_paterno} onChange={(e) => setForm({ ...form, apellido_paterno: e.target.value })} className={input} />
-            </Field>
-            <Field label="Apellido materno">
-              <input value={form.apellido_materno} onChange={(e) => setForm({ ...form, apellido_materno: e.target.value })} className={input} />
-            </Field>
-            <Field label="Fecha de nacimiento">
-              <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })} className={input} />
-            </Field>
-            <Field label="Género">
-              <select value={form.genero} onChange={(e) => setForm({ ...form, genero: e.target.value as Genero | "" })} className={`${input} bg-white`}>
-                <option value="">—</option>
-                {Object.entries(GENERO_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Dirección">
-              <input value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} className={input} />
-            </Field>
-            <Field label="Comuna">
-              <input value={form.comuna} onChange={(e) => setForm({ ...form, comuna: e.target.value })} className={input} />
-            </Field>
-            <Field label="Email personal">
-              <input type="email" value={form.email_personal} onChange={(e) => setForm({ ...form, email_personal: e.target.value })} className={input} />
-            </Field>
-            <Field label="Fecha de ingreso al colegio">
-              <input type="date" value={form.fecha_ingreso} onChange={(e) => setForm({ ...form, fecha_ingreso: e.target.value })} className={input} />
-            </Field>
-            {!editId && (
-              <>
-                <Field label="Matricular en curso (opcional)">
-                  <select value={form.curso_id} onChange={(e) => setForm({ ...form, curso_id: e.target.value })} className={`${input} bg-white`}>
-                    <option value="">— sin matricular —</option>
-                    {cursos.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {NIVEL_CURSO_LABELS[c.nivel]} {c.letra} · {c.ano}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="N° lista">
-                  <input
-                    type="number" min={1}
-                    value={form.numero_lista}
-                    onChange={(e) => setForm({ ...form, numero_lista: e.target.value })}
-                    className={input}
-                  />
-                </Field>
-              </>
-            )}
-          </div>
-          {error && <p className="text-rose-600 text-sm">{error}</p>}
-          <div className="flex gap-2">
-            <button onClick={guardar} className="bg-ceis-primary text-white px-4 py-2 rounded font-medium hover:bg-blue-800">
-              {editId ? "Guardar cambios" : "Crear estudiante"}
-            </button>
-            <button onClick={cerrar} className="px-4 py-2 rounded border border-slate-300 hover:bg-slate-50">
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {matricularEst && (
-        <div className="bg-white rounded-lg border border-amber-300 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-900">
-            Matricular a {matricularEst.nombres} {matricularEst.apellido_paterno}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="Curso *">
-              <select value={matCursoId} onChange={(e) => setMatCursoId(e.target.value)} className={`${input} bg-white`}>
-                <option value="">— seleccionar curso —</option>
-                {cursos.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {NIVEL_CURSO_LABELS[c.nivel]} {c.letra} · {c.ano}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="N° lista">
-              <input type="number" min={1} value={matNumero} onChange={(e) => setMatNumero(e.target.value)} className={input} />
-            </Field>
-          </div>
-          <p className="text-xs text-slate-500">
-            Si el estudiante ya tiene una matrícula activa el mismo año, será cerrada automáticamente.
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={confirmarMatricula}
-              disabled={!matCursoId}
-              className="bg-ceis-primary text-white px-4 py-2 rounded font-medium hover:bg-blue-800 disabled:opacity-50"
-            >
-              Confirmar matrícula
-            </button>
-            <button onClick={() => setMatricularEst(null)} className="px-4 py-2 rounded border border-slate-300 hover:bg-slate-50">
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-              <th className="px-4 py-3">Estudiante</th>
-              <th className="px-4 py-3">RUT</th>
-              <th className="px-4 py-3">Curso actual</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {estudiantes.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No hay estudiantes en este filtro.</td></tr>
-            )}
-            {estudiantes.map((e) => (
-              <tr key={e.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium text-slate-900 cursor-pointer" onClick={() => abrirEditar(e)}>
-                  {e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}
-                </td>
-                <td className="px-4 py-3 font-mono text-slate-600">{e.rut}</td>
-                <td className="px-4 py-3 text-slate-600">
-                  {e.curso_actual_label
-                    ? <span>{prettyCursoLabel(e.curso_actual_label)}</span>
-                    : <span className="text-slate-400 italic">sin matrícula</span>}
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${estadoColor(e.estado)}`}>
-                    {ESTADO_ESTUDIANTE_LABELS[e.estado]}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right space-x-2">
-                  <Link
-                    to={`/estudiantes/${e.id}`}
-                    className="text-xs px-2 py-1 rounded border border-ceis-primary text-ceis-primary hover:bg-blue-50"
-                  >
-                    Ver perfil
-                  </Link>
-                  <button
-                    onClick={() => abrirMatricular(e)}
-                    className="text-xs px-2 py-1 rounded border border-slate-300 hover:bg-slate-100"
-                  >
-                    Matricular
-                  </button>
-                  <button onClick={() => eliminar(e)} className="text-xs px-2 py-1 text-slate-400 hover:text-rose-600">✕</button>
-                </td>
-              </tr>
+      <Card>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select
+            value={colegioId}
+            onChange={(e) => setColegioId(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">— Selecciona colegio —</option>
+            {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          <select
+            value={estado}
+            onChange={(e) => setEstado(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos los estados</option>
+            {Object.entries(ESTADO_ESTUDIANTE_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </select>
+          <div className="flex-1">
+            <SearchBar
+              value={q}
+              onChange={setQ}
+              placeholder="Buscar por nombre, apellido o RUT…"
+            />
+          </div>
+          <Button variant="secondary" onClick={cargar}>Buscar</Button>
+        </div>
+      </Card>
+
+      <Card padding="none">
+        <DataTable
+          columns={columns}
+          rows={estudiantes}
+          onRowClick={(e) => abrirEditar(e)}
+          empty="No hay estudiantes en este filtro."
+        />
+      </Card>
+
+      {/* Modal Nuevo/Editar */}
+      <Modal
+        open={!!form}
+        onClose={cerrar}
+        title={editId ? "Editar estudiante" : "Nuevo estudiante"}
+        size="lg"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Field label="RUT *">
+            <input value={form?.rut || ""} onChange={(e) => setForm({ ...form!, rut: e.target.value })} placeholder="25.111.222-3" className={input} />
+          </Field>
+          <Field label="Nombres *">
+            <input value={form?.nombres || ""} onChange={(e) => setForm({ ...form!, nombres: e.target.value })} className={input} />
+          </Field>
+          <Field label="Estado">
+            <select value={form?.estado} onChange={(e) => setForm({ ...form!, estado: e.target.value as EstadoEstudiante })} className={`${input} bg-white`}>
+              {Object.entries(ESTADO_ESTUDIANTE_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Apellido paterno *">
+            <input value={form?.apellido_paterno || ""} onChange={(e) => setForm({ ...form!, apellido_paterno: e.target.value })} className={input} />
+          </Field>
+          <Field label="Apellido materno">
+            <input value={form?.apellido_materno || ""} onChange={(e) => setForm({ ...form!, apellido_materno: e.target.value })} className={input} />
+          </Field>
+          <Field label="Fecha de nacimiento">
+            <input type="date" value={form?.fecha_nacimiento || ""} onChange={(e) => setForm({ ...form!, fecha_nacimiento: e.target.value })} className={input} />
+          </Field>
+          <Field label="Género">
+            <select value={form?.genero || ""} onChange={(e) => setForm({ ...form!, genero: e.target.value as Genero | "" })} className={`${input} bg-white`}>
+              <option value="">—</option>
+              {Object.entries(GENERO_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Dirección">
+            <input value={form?.direccion || ""} onChange={(e) => setForm({ ...form!, direccion: e.target.value })} className={input} />
+          </Field>
+          <Field label="Comuna">
+            <input value={form?.comuna || ""} onChange={(e) => setForm({ ...form!, comuna: e.target.value })} className={input} />
+          </Field>
+          <Field label="Email personal">
+            <input type="email" value={form?.email_personal || ""} onChange={(e) => setForm({ ...form!, email_personal: e.target.value })} className={input} />
+          </Field>
+          <Field label="Fecha de ingreso al colegio">
+            <input type="date" value={form?.fecha_ingreso || ""} onChange={(e) => setForm({ ...form!, fecha_ingreso: e.target.value })} className={input} />
+          </Field>
+          {!editId && (
+            <>
+              <Field label="Matricular en curso (opcional)">
+                <select value={form?.curso_id || ""} onChange={(e) => setForm({ ...form!, curso_id: e.target.value })} className={`${input} bg-white`}>
+                  <option value="">— sin matricular —</option>
+                  {cursos.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {NIVEL_CURSO_LABELS[c.nivel]} {c.letra} · {c.ano}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="N° lista">
+                <input
+                  type="number" min={1}
+                  value={form?.numero_lista || ""}
+                  onChange={(e) => setForm({ ...form!, numero_lista: e.target.value })}
+                  className={input}
+                />
+              </Field>
+            </>
+          )}
+        </div>
+        {error && <p className="text-rose-600 text-sm mt-3">{error}</p>}
+        <div className="flex gap-2 mt-5">
+          <Button onClick={guardar}>
+            {editId ? "Guardar cambios" : "Crear estudiante"}
+          </Button>
+          <Button variant="secondary" onClick={cerrar}>Cancelar</Button>
+        </div>
+      </Modal>
+
+      {/* Modal Matricular */}
+      <Modal
+        open={!!matricularEst}
+        onClose={() => setMatricularEst(null)}
+        title={matricularEst ? `Matricular a ${matricularEst.nombres} ${matricularEst.apellido_paterno}` : "Matricular"}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="Curso *">
+            <select value={matCursoId} onChange={(e) => setMatCursoId(e.target.value)} className={`${input} bg-white`}>
+              <option value="">— seleccionar curso —</option>
+              {cursos.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {NIVEL_CURSO_LABELS[c.nivel]} {c.letra} · {c.ano}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="N° lista">
+            <input type="number" min={1} value={matNumero} onChange={(e) => setMatNumero(e.target.value)} className={input} />
+          </Field>
+        </div>
+        <p className="text-xs text-slate-500 mt-3">
+          Si el estudiante ya tiene una matrícula activa el mismo año, será cerrada automáticamente.
+        </p>
+        <div className="flex gap-2 mt-5">
+          <Button onClick={confirmarMatricula} disabled={!matCursoId}>
+            Confirmar matrícula
+          </Button>
+          <Button variant="secondary" onClick={() => setMatricularEst(null)}>
+            Cancelar
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
 
 function prettyCursoLabel(raw: string): string {
-  // raw viene como "6_basico A · 2026" — sustituimos el código de nivel por su label
   const labels = NIVEL_CURSO_LABELS as Record<string, string>;
   return raw.replace(/^(\w+_\w+)/, (m) => labels[m] || m);
 }
 
-function estadoColor(estado: EstadoEstudiante): string {
+function estadoVariant(estado: EstadoEstudiante): string {
   switch (estado) {
-    case "activo": return "bg-emerald-100 text-emerald-800";
-    case "retirado": return "bg-rose-100 text-rose-800";
-    case "egresado": return "bg-sky-100 text-sky-800";
-    case "congelado": return "bg-amber-100 text-amber-800";
+    case "activo": return "emerald";
+    case "retirado": return "rose";
+    case "egresado": return "blue";
+    case "congelado": return "amber";
   }
 }
 
-const input = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm";
+const input = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
