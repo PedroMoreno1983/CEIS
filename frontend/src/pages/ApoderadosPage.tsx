@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { ApoderadosAPI, EstudiantesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import SearchBar from "../components/ui/SearchBar";
 import type { Apoderado, Estudiante } from "../types-gestion";
 import { TIPO_APODERADO_LABELS } from "../types-gestion";
 

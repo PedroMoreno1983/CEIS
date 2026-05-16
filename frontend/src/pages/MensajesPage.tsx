@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { MensajesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 import type { Mensaje } from "../types-gestion";
 import { TIPO_MENSAJE_LABELS } from "../types-gestion";
 
@@ -47,16 +49,14 @@ export default function MensajesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mensajes</h1>
-          <p className="text-slate-600 mt-1">Comunicación del colegio hacia las familias.</p>
-        </div>
-        <button onClick={() => (form ? setForm(null) : abrirNuevo())}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800">
+      <PageHeader
+        title="Mensajes"
+        subtitle="Comunicación del colegio hacia las familias."
+      >
+        <Button onClick={() => (form ? setForm(null) : abrirNuevo())}>
           {form ? "Cancelar" : "+ Nuevo mensaje"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       {form && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">

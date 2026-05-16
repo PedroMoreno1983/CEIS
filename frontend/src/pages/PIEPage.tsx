@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { PieAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 import type { PIEDiagnostico, PIEIntervencion } from "../types-gestion";
 import { TIPO_PIE_LABELS, ESTADO_PIE_LABELS, ESTADO_PIE_COLORS } from "../types-gestion";
 
@@ -67,16 +69,14 @@ export default function PIEPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">PIE</h1>
-          <p className="text-slate-600 mt-1">Programa de Integración Escolar — diagnósticos e intervenciones.</p>
-        </div>
-        <button onClick={() => (form ? setForm(null) : abrirNuevo())}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800">
+      <PageHeader
+        title="PIE"
+        subtitle="Programa de Integración Escolar — diagnósticos e intervenciones."
+      >
+        <Button onClick={() => (form ? setForm(null) : abrirNuevo())}>
           {form ? "Cancelar" : "+ Nuevo diagnóstico"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       {form && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">

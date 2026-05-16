@@ -1,5 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { ColegiosAPI, CursosAPI, DocentesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 import type { Colegio, Curso, Docente, Estudiante, NivelCurso } from "../types-gestion";
 import { NIVEL_CURSO_LABELS, NIVEL_CURSO_ORDER } from "../types-gestion";
 
@@ -123,41 +126,38 @@ export default function CursosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Cursos</h1>
-          <p className="text-slate-600 mt-1">Cursos por año, nivel y letra. Profesor jefe y nómina de estudiantes.</p>
-        </div>
-        <button
-          onClick={form ? cerrar : abrirNuevo}
-          disabled={!colegioId}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 disabled:opacity-50"
-        >
+      <PageHeader
+        title="Cursos"
+        subtitle="Cursos por año, nivel y letra. Profesor jefe y nómina de estudiantes."
+      >
+        <Button onClick={form ? cerrar : abrirNuevo} disabled={!colegioId}>
           {form ? "Cancelar" : "+ Nuevo curso"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
-      <div className="flex items-center gap-3">
-        <select
-          value={colegioId}
-          onChange={(e) => setColegioId(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-        >
-          <option value="">— Selecciona colegio —</option>
-          {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-        </select>
-        <select
-          value={ano}
-          onChange={(e) => setAno(Number(e.target.value))}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-        >
-          {anosDisponibles.map((a) => <option key={a} value={a}>Año {a}</option>)}
-        </select>
-      </div>
+      <Card>
+        <div className="flex items-center gap-3">
+          <select
+            value={colegioId}
+            onChange={(e) => setColegioId(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">— Selecciona colegio —</option>
+            {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          <select
+            value={ano}
+            onChange={(e) => setAno(Number(e.target.value))}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {anosDisponibles.map((a) => <option key={a} value={a}>Año {a}</option>)}
+          </select>
+        </div>
+      </Card>
 
       {form && (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
-          <h2 className="font-semibold text-slate-900">{editId ? "Editar curso" : "Nuevo curso"}</h2>
+        <Card>
+          <h2 className="font-semibold text-slate-900 mb-4">{editId ? "Editar curso" : "Nuevo curso"}</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Field label="Año *">
               <input
@@ -211,7 +211,7 @@ export default function CursosPage() {
               Cancelar
             </button>
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">

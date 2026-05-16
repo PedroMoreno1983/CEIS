@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { ColegiosAPI, DocentesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import SearchBar from "../components/ui/SearchBar";
 import type { Colegio, Docente, EstadoPersona, RolDocente } from "../types-gestion";
 import { ROL_DOCENTE_LABELS } from "../types-gestion";
 
@@ -126,41 +130,35 @@ export default function DocentesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Docentes y personal</h1>
-          <p className="text-slate-600 mt-1">Equipo del colegio: docentes, jefatura, orientación, dirección.</p>
-        </div>
-        <button
-          onClick={form ? cerrar : abrirNuevo}
-          disabled={!colegioId}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 disabled:opacity-50"
-        >
+      <PageHeader
+        title="Docentes y personal"
+        subtitle="Equipo del colegio: docentes, jefatura, orientación, dirección."
+      >
+        <Button onClick={form ? cerrar : abrirNuevo} disabled={!colegioId}>
           {form ? "Cancelar" : "+ Nuevo docente"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
-      <div className="flex items-center gap-3">
-        <select
-          value={colegioId}
-          onChange={(e) => setColegioId(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-        >
-          <option value="">— Selecciona colegio —</option>
-          {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-        </select>
-        <input
-          type="text"
-          placeholder="Buscar por nombre o apellido…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && cargar()}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
-        />
-        <button onClick={cargar} className="text-sm px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50">
-          Buscar
-        </button>
-      </div>
+      <Card>
+        <div className="flex items-center gap-3">
+          <select
+            value={colegioId}
+            onChange={(e) => setColegioId(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">— Selecciona colegio —</option>
+            {colegios.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          <div className="flex-1">
+            <SearchBar
+              value={q}
+              onChange={setQ}
+              placeholder="Buscar por nombre o apellido…"
+            />
+          </div>
+          <Button variant="secondary" onClick={cargar}>Buscar</Button>
+        </div>
+      </Card>
 
       {form && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { PlanesAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 import type { PlanMejora, ObjetivoPlan, SeguimientoPlan } from "../types-gestion";
 import { ESTADO_PLAN_LABELS, ESTADO_PLAN_COLORS, PRIORIDAD_OBJETIVO_LABELS, ESTADO_OBJETIVO_LABELS, ESTADO_OBJETIVO_COLORS } from "../types-gestion";
 
@@ -81,16 +83,14 @@ export default function PlanesMejoraPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Planes de mejora</h1>
-          <p className="text-slate-600 mt-1">Seguimiento individualizado de estudiantes.</p>
-        </div>
-        <button onClick={() => (form ? setForm(null) : abrirNuevo())}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800">
+      <PageHeader
+        title="Planes de mejora"
+        subtitle="Seguimiento individualizado de estudiantes."
+      >
+        <Button onClick={() => (form ? setForm(null) : abrirNuevo())}>
           {form ? "Cancelar" : "+ Nuevo plan"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       {form && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
