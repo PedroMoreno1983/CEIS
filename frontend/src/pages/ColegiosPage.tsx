@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { ColegiosAPI } from "../api-gestion";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import SearchBar from "../components/ui/SearchBar";
 import type { Colegio, Dependencia, EstadoPersona } from "../types-gestion";
 import { DEPENDENCIA_LABELS } from "../types-gestion";
 
@@ -104,34 +108,27 @@ export default function ColegiosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Colegios</h1>
-          <p className="text-slate-600 mt-1">
-            Instituciones cliente del ecosistema CEIS.
-          </p>
-        </div>
-        <button
-          onClick={form ? cerrar : abrirNuevo}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800"
-        >
+      <PageHeader
+        title="Colegios"
+        subtitle="Instituciones cliente del ecosistema CEIS."
+      >
+        <Button onClick={form ? cerrar : abrirNuevo}>
           {form ? "Cancelar" : "+ Nuevo colegio"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
-      <div className="flex items-center gap-3">
-        <input
-          type="text"
-          placeholder="Buscar por nombre o RBD…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && cargar()}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
-        />
-        <button onClick={cargar} className="text-sm px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50">
-          Buscar
-        </button>
-      </div>
+      <Card>
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <SearchBar
+              value={q}
+              onChange={setQ}
+              placeholder="Buscar por nombre o RBD…"
+            />
+          </div>
+          <Button variant="secondary" onClick={cargar}>Buscar</Button>
+        </div>
+      </Card>
 
       {form && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">

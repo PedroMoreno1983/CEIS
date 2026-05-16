@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from .core.security import decode_access_token
 from .routers import items, generacion, instrumentos, aplicaciones
 from .routers import colegios, docentes, cursos, estudiantes
 from .routers import asignaturas, periodos, libro
@@ -37,6 +39,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Middleware de autenticación global (excepto rutas públicas)
+PUBLIC_PATHS = {
+    "/api/auth/login",
+    "/api/health",
+}
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    path = request.url.path
+    if path in PUBLIC_PATHS or path.startswith("/api/aplicar/") or path.startswith("/uploads/"):
+        return await call_next(request)
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return JSONResponse(status_code=401, content={"detail": "No autorizado"})
+    token = auth[7:]
+    if decode_access_token(token) is None:
+        return JSONResponse(status_code=401, content={"detail": "Token inválido"})
+    return await call_next(request)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 

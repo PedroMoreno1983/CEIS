@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
 import { ColegiosAPI, CursosAPI } from "../api-gestion";
 import {
   AnotacionesAPI, AsistenciaAPI, CalificacionesAPI, CargaAPI, PeriodosAPI,
@@ -62,13 +64,14 @@ export default function LibroClasesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Libro de clases</h1>
-        <p className="text-slate-600 mt-1">Notas, asistencia y anotaciones por curso y período.</p>
-      </div>
+      <PageHeader
+        title="Libro de clases"
+        subtitle="Notas, asistencia y anotaciones por curso y período."
+      />
 
       {/* Selectores */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4 flex flex-wrap gap-3 items-end">
+      <Card>
+        <div className="flex flex-wrap gap-3 items-end">
         <Selector label="Colegio" value={colegioId} onChange={setColegioId} options={colegios.map((c) => ({ id: c.id, label: c.nombre }))} />
         <Selector
           label="Curso"
@@ -82,7 +85,8 @@ export default function LibroClasesPage() {
           onChange={setPeriodoId}
           options={periodos.map((p) => ({ id: p.id, label: p.nombre }))}
         />
-      </div>
+        </div>
+      </Card>
 
       {/* Tabs */}
       <div className="border-b border-slate-200 flex gap-1">
