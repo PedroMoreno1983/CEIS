@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { AplicacionesAPI, InstrumentosAPI } from "../api";
 import type { Aplicacion, Instrumento, ResultadosAplicacion } from "../types";
 import ResultadosView from "../components/ResultadosView";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 
 const ESTADO_LABELS: Record<string, string> = {
   pendiente: "Pendiente",
@@ -74,20 +76,16 @@ export default function AplicacionesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Aplicaciones</h1>
-          <p className="text-slate-600 mt-1">
+      <PageHeader
+        title="Aplicaciones"
+        subtitle="
             Genera códigos de acceso para que tus estudiantes respondan las pruebas en pantalla.
-          </p>
-        </div>
-        <button
-          onClick={() => setCrearOpen(!crearOpen)}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800"
-        >
+          "
+      >
+        <Button onClick={() => setCrearOpen(!crearOpen)}>
           {crearOpen ? "Cancelar" : "+ Nueva aplicación"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       {crearOpen && (
         <div className="bg-white rounded-lg border border-slate-200 p-6">

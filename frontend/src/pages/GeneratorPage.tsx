@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GeneracionAPI } from "../api";
+import PageHeader from "../components/ui/PageHeader";
 import type { Item, Nivel, Tipo } from "../types";
 import { NIVEL_LABELS, TIPO_LABELS, TIPOS_VISUALES } from "../types";
 import ItemCard from "../components/ItemCard";
@@ -60,13 +61,10 @@ export default function GeneratorPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Generar Ítems</h1>
-        <p className="text-slate-600 mt-1">
-          Crea ítems nuevos: <strong>textuales</strong> con IA (Claude) o <strong>visuales</strong> con
-          generación procedimental (figuras matemáticas).
-        </p>
-      </div>
+      <PageHeader
+        title="Generar Ítems"
+        subtitle="Crea ítems nuevos: textuales con IA (Claude) o visuales con generación procedimental (figuras matemáticas)."
+      />
 
       <div className={`rounded-lg p-3 text-sm ${esVisual ? "bg-purple-50 border border-purple-200 text-purple-900" : "bg-blue-50 border border-blue-200 text-blue-900"}`}>
         {esVisual ? (

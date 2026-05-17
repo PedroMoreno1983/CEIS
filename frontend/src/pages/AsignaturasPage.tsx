@@ -3,6 +3,8 @@ import { ColegiosAPI } from "../api-gestion";
 import { AsignaturasAPI } from "../api-libro";
 import type { Colegio } from "../types-gestion";
 import type { Asignatura } from "../types-libro";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 
 type FormState = {
   colegio_id: string;
@@ -96,19 +98,14 @@ export default function AsignaturasPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Asignaturas</h1>
-          <p className="text-slate-600 mt-1">Catálogo de asignaturas del colegio para el libro de clases.</p>
-        </div>
-        <button
-          onClick={form ? cerrar : abrirNuevo}
-          disabled={!colegioId}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 disabled:opacity-50"
-        >
+      <PageHeader
+        title="Asignaturas"
+        subtitle="Catálogo de asignaturas del colegio para el libro de clases."
+      >
+        <Button onClick={form ? cerrar : abrirNuevo}>
           {form ? "Cancelar" : "+ Nueva asignatura"}
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       <select
         value={colegioId}

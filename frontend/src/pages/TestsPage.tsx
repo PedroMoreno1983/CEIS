@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { InstrumentosAPI, ItemsAPI, AplicacionesAPI } from "../api";
+import PageHeader from "../components/ui/PageHeader";
 import type { InventarioRow } from "../api";
 import type { Instrumento, Nivel, Tipo } from "../types";
 import { NIVEL_LABELS, TIPO_LABELS } from "../types";
@@ -101,12 +102,10 @@ export default function TestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="no-print">
-        <h1 className="text-2xl font-bold text-slate-900">Pruebas</h1>
-        <p className="text-slate-600 mt-1">
-          Ensambla pruebas a partir del banco de ítems. Las pruebas pueden imprimirse, exportarse o aplicarse en pantalla.
-        </p>
-      </div>
+      <PageHeader
+        title="Pruebas"
+        subtitle="Ensambla pruebas a partir del banco de ítems. Las pruebas pueden imprimirse, exportarse o aplicarse en pantalla."
+      />
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 no-print">
         <h2 className="font-semibold text-slate-900 mb-4">Ensamblar nueva prueba</h2>
