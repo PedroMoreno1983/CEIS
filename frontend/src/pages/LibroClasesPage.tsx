@@ -7,7 +7,7 @@ import {
 import type { Colegio, Curso, Estudiante } from "../types-gestion";
 import { NIVEL_CURSO_LABELS } from "../types-gestion";
 import type {
-  Anotacion, Asistencia, Calificacion, Carga, EstadoAsistencia, Periodo, TipoAnotacion,
+  Anotacion, Calificacion, Carga, EstadoAsistencia, Periodo, TipoAnotacion,
 } from "../types-libro";
 import {
   ESTADO_ASISTENCIA_COLOR, ESTADO_ASISTENCIA_LABELS, ESTADO_ASISTENCIA_LETRA,
@@ -58,13 +58,23 @@ export default function LibroClasesPage() {
 
   const cursoSel = cursos.find((c) => c.id === cursoId);
   const periodoSel = periodos.find((p) => p.id === periodoId);
-  const colegioSel = colegios.find((c) => c.id === colegioId);
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Barra superior tipo toolbar */}
-      <div className="bg-white border-b border-[#c5c9d0] flex items-center gap-1 px-2 py-1 shrink-0">
-        <div className="flex items-center gap-1">
+    <div className="space-y-5">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <span className="text-3xl">📖</span>
+          Libro de Clases
+        </h1>
+        <p className="text-sm text-slate-400 mt-0.5">
+          Gestiona notas, asistencia y anotaciones de tus estudiantes
+        </p>
+      </div>
+
+      {/* Filtros */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+        <div className="flex flex-wrap items-end gap-4">
           <Selector label="Colegio" value={colegioId} onChange={setColegioId} options={colegios.map((c) => ({ id: c.id, label: c.nombre }))} />
           <Selector
             label="Curso"
@@ -78,86 +88,72 @@ export default function LibroClasesPage() {
             onChange={setPeriodoId}
             options={periodos.map((p) => ({ id: p.id, label: p.nombre }))}
           />
-        </div>
-        <div className="ml-auto flex items-center gap-3">
           {cursoSel && (
-            <div className="text-[11px] text-[#5a5f69]">
-              <span className="font-bold text-[#1a1d23]">{NIVEL_CURSO_LABELS[cursoSel.nivel]} {cursoSel.letra}</span>
-              <span className="text-[#9ca3af] mx-1">|</span>
+            <div className="ml-auto flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-semibold">
+              <span>{NIVEL_CURSO_LABELS[cursoSel.nivel]} {cursoSel.letra}</span>
+              <span className="text-blue-300">|</span>
               <span>{cursoSel.ano}</span>
-              <span className="text-[#9ca3af] mx-1">|</span>
+              <span className="text-blue-300">|</span>
               <span>{estudiantes.length} alumnos</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Tabs tipo Excel */}
-      <div className="bg-[#f3f4f6] border-b border-[#c5c9d0] flex shrink-0">
-        {(["notas", "asistencia", "anotaciones"] as Tab[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-1 text-[11px] font-semibold border-r border-[#c5c9d0] transition-colors ${
-              tab === t
-                ? "bg-white text-[#1a1d23] border-b-2 border-b-[#1a2b4a] -mb-px"
-                : "text-[#6b7280] hover:text-[#374151] hover:bg-[#e5e7eb]"
-            }`}
-          >
-            {t === "notas" ? "NOTAS" : t === "asistencia" ? "ASISTENCIA" : "ANOTACIONES"}
-          </button>
-        ))}
-      </div>
+      {/* Tabs */}
+      {cursoId && (
+        <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl w-fit">
+          {(["notas", "asistencia", "anotaciones"] as Tab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                tab === t
+                  ? "bg-white text-blue-700 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {t === "notas" ? "Notas" : t === "asistencia" ? "Asistencia" : "Anotaciones"}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Contenido */}
-      <div className="flex-1 overflow-auto bg-white">
-        {!cursoId ? (
-          <EmptyState colegio={colegioSel} />
-        ) : tab === "notas" ? (
-          <TabNotas
-            cursoId={cursoId}
-            periodoId={periodoId}
-            estudiantes={estudiantes}
-            carga={carga}
-            cursoLabel={cursoSel ? `${NIVEL_CURSO_LABELS[cursoSel.nivel]} ${cursoSel.letra}` : ""}
-            periodoLabel={periodoSel?.nombre}
-          />
-        ) : tab === "asistencia" ? (
-          <TabAsistencia cursoId={cursoId} estudiantes={estudiantes} />
-        ) : (
-          <TabAnotaciones cursoId={cursoId} estudiantes={estudiantes} carga={carga} />
-        )}
-      </div>
+      {!cursoId ? (
+        <EmptyState />
+      ) : tab === "notas" ? (
+        <TabNotas
+          cursoId={cursoId}
+          periodoId={periodoId}
+          estudiantes={estudiantes}
+          carga={carga}
+          cursoLabel={cursoSel ? `${NIVEL_CURSO_LABELS[cursoSel.nivel]} ${cursoSel.letra}` : ""}
+          periodoLabel={periodoSel?.nombre}
+        />
+      ) : tab === "asistencia" ? (
+        <TabAsistencia cursoId={cursoId} estudiantes={estudiantes} />
+      ) : (
+        <TabAnotaciones cursoId={cursoId} estudiantes={estudiantes} carga={carga} />
+      )}
     </div>
   );
 }
 
-/* ================================================================
-   Empty State — muestra info útil cuando no hay curso seleccionado
-   ================================================================ */
-function EmptyState({ colegio }: { colegio?: Colegio }) {
+/* ================================================================ */
+function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-[#6b7280]">
-      <div className="text-center max-w-md">
-        <div className="text-4xl mb-3">📚</div>
-        <h2 className="text-sm font-bold text-[#1a1d23] mb-1">Libro de Clases Digital</h2>
-        <p className="text-[11px] leading-relaxed mb-4">
-          Selecciona un <strong>curso</strong> desde los selectores superiores para visualizar notas, asistencia y anotaciones.
-        </p>
-        {colegio && (
-          <div className="text-[10px] text-[#9ca3af] border-t border-[#e5e7eb] pt-3 mt-3">
-            Colegio activo: <strong className="text-[#6b7280]">{colegio.nombre}</strong>
-          </div>
-        )}
-      </div>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 flex flex-col items-center justify-center text-center">
+      <div className="text-6xl mb-4">📚</div>
+      <h3 className="text-lg font-bold text-slate-800 mb-2">Selecciona un curso</h3>
+      <p className="text-sm text-slate-400 max-w-sm">
+        Elige un colegio, curso y período desde los filtros superiores para comenzar a gestionar tu libro de clases.
+      </p>
     </div>
   );
 }
 
-/* ================================================================
-   Tab Notas
-   ================================================================ */
-
+/* ================================================================ */
 function TabNotas({
   cursoId, periodoId, estudiantes, carga, cursoLabel, periodoLabel,
 }: {
@@ -225,15 +221,20 @@ function TabNotas({
   }, [columnas]);
 
   if (!periodoId) {
-    return <div className="p-8 text-center text-[11px] text-[#9ca3af]">Selecciona un período de evaluación.</div>;
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
+        <div className="text-4xl mb-3">📅</div>
+        <p className="text-slate-400">Selecciona un período de evaluación.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-2">
-      <div className="flex justify-between items-center mb-2">
-        <div className="text-[10px] text-[#6b7280]">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-slate-400">
           {cursoLabel} · {periodoLabel} · {estudiantes.length} estudiantes · {columnas.length} evaluaciones
-        </div>
+        </p>
         <button
           onClick={() => setEvalForm({
             asignatura_id: carga[0]?.asignatura_id || "",
@@ -243,9 +244,9 @@ function TabNotas({
             ponderacion: 100,
             notas: Object.fromEntries(estudiantes.map((e) => [e.id, ""])),
           })}
-          className="bg-[#1a2b4a] text-white px-3 py-1 text-[11px] font-semibold hover:bg-[#2a3b5a]"
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors"
         >
-          + NUEVA EVALUACIÓN
+          + Nueva evaluación
         </button>
       </div>
 
@@ -262,66 +263,70 @@ function TabNotas({
       )}
 
       {estudiantes.length === 0 ? (
-        <p className="text-[#9ca3af] italic text-[11px] py-8 text-center">Este curso no tiene estudiantes matriculados.</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-slate-400">
+          Este curso no tiene estudiantes matriculados.
+        </div>
       ) : (
-        <div className="overflow-x-auto border border-[#c5c9d0]">
-          <table className="text-[11px] border-collapse w-full">
-            <thead>
-              <tr className="bg-[#f3f4f6]">
-                <th className="px-2 py-1 text-left font-semibold text-[#374151] sticky left-0 bg-[#f3f4f6] z-10 border border-[#c5c9d0] min-w-[140px]">
-                  Estudiante
-                </th>
-                {columnas.map((col) => (
-                  <th key={`${col.asignatura_id}|${col.descripcion}|${col.fecha}`} className="px-1 py-1 text-center border border-[#c5c9d0] text-[10px] font-semibold text-[#374151] min-w-[70px]" title={`${col.asignatura_codigo} · ${col.descripcion}`}>
-                    <div className="text-[9px] font-bold text-[#1a2b4a]">{col.asignatura_codigo}</div>
-                    <div className="text-[9px] text-[#6b7280] max-w-[90px] truncate">{col.descripcion}</div>
-                    <div className="text-[8px] text-[#9ca3af]">{col.fecha}</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50">
+                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 sticky left-0 bg-slate-50 z-10 min-w-[180px]">
+                    Estudiante
                   </th>
-                ))}
-                {asignaturasUnicas.map((a) => (
-                  <th key={`prom-${a.id}`} className="px-1 py-1 text-center border border-[#c5c9d0] bg-[#f3f4f6] text-[10px] font-bold text-[#374151] min-w-[55px]">
-                    PROM {a.codigo}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {estudiantes.map((est) => (
-                <tr key={est.id} className="hover:bg-[#f9fafb] border-b border-[#e5e7eb]">
-                  <td className="px-2 py-1 sticky left-0 bg-white z-10 border border-[#c5c9d0]">
-                    <div className="text-[#1a1d23] font-medium text-[11px]">{est.apellido_paterno}, {est.nombres.split(" ")[0]}</div>
-                    <div className="text-[8px] text-[#9ca3af] font-mono">{est.rut}</div>
-                  </td>
-                  {columnas.map((col) => {
-                    const cal = notaPorCelda.get(`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`);
-                    return (
-                      <td
-                        key={`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`}
-                        className="px-0.5 py-0.5 text-center border border-[#e5e7eb] cursor-pointer hover:bg-[#eff6ff] min-w-[50px]"
-                        onClick={() => cal && editarNotaInline(cal, cargar)}
-                      >
-                        {cal?.nota
-                          ? <span className={`font-mono font-semibold text-[11px] ${parseFloat(cal.nota) < 4 ? "text-[#991b1b] bg-[#fef2f2]" : "text-[#1a1d23]"}`}>
-                              {parseFloat(cal.nota).toFixed(1)}
-                            </span>
-                          : <span className="text-[#d1d5db]">—</span>}
-                      </td>
-                    );
-                  })}
-                  {asignaturasUnicas.map((a) => {
-                    const p = promediosPorAsignatura.get(`${est.id}|${a.id}`);
-                    return (
-                      <td key={`prom-${est.id}-${a.id}`} className="px-1 py-1 text-center border border-[#c5c9d0] bg-[#f9fafb]">
-                        {p != null
-                          ? <span className={`font-mono font-bold text-[11px] ${p < 4 ? "text-[#991b1b]" : "text-[#047857]"}`}>{p.toFixed(1)}</span>
-                          : <span className="text-[#d1d5db]">—</span>}
-                      </td>
-                    );
-                  })}
+                  {columnas.map((col) => (
+                    <th key={`${col.asignatura_id}|${col.descripcion}|${col.fecha}`} className="px-2 py-3 text-center text-[11px] font-bold text-slate-600 min-w-[90px]" title={`${col.asignatura_codigo} · ${col.descripcion}`}>
+                      <div className="text-blue-600">{col.asignatura_codigo}</div>
+                      <div className="text-slate-400 max-w-[100px] truncate">{col.descripcion}</div>
+                      <div className="text-[10px] text-slate-300">{col.fecha}</div>
+                    </th>
+                  ))}
+                  {asignaturasUnicas.map((a) => (
+                    <th key={`prom-${a.id}`} className="px-2 py-3 text-center text-[11px] font-bold text-slate-700 min-w-[70px] bg-slate-100">
+                      PROM {a.codigo}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {estudiantes.map((est) => (
+                  <tr key={est.id} className="hover:bg-blue-50/30 transition-colors">
+                    <td className="px-4 py-3 sticky left-0 bg-white z-10">
+                      <div className="text-slate-800 font-semibold text-sm">{est.apellido_paterno}, {est.nombres.split(" ")[0]}</div>
+                      <div className="text-[11px] text-slate-400 font-mono">{est.rut}</div>
+                    </td>
+                    {columnas.map((col) => {
+                      const cal = notaPorCelda.get(`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`);
+                      return (
+                        <td
+                          key={`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`}
+                          className="px-2 py-3 text-center cursor-pointer hover:bg-blue-100/50 rounded transition-colors"
+                          onClick={() => cal && editarNotaInline(cal, cargar)}
+                        >
+                          {cal?.nota
+                            ? <span className={`font-mono font-bold text-sm ${parseFloat(cal.nota) < 4 ? "text-red-500" : "text-slate-800"}`}>
+                                {parseFloat(cal.nota).toFixed(1)}
+                              </span>
+                            : <span className="text-slate-200">—</span>}
+                        </td>
+                      );
+                    })}
+                    {asignaturasUnicas.map((a) => {
+                      const p = promediosPorAsignatura.get(`${est.id}|${a.id}`);
+                      return (
+                        <td key={`prom-${est.id}-${a.id}`} className="px-2 py-3 text-center bg-slate-50/50">
+                          {p != null
+                            ? <span className={`font-mono font-bold text-sm ${p < 4 ? "text-red-500" : "text-emerald-500"}`}>{p.toFixed(1)}</span>
+                            : <span className="text-slate-200">—</span>}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
@@ -343,10 +348,7 @@ async function editarNotaInline(cal: Calificacion, recargar: () => Promise<void>
   await recargar();
 }
 
-/* ================================================================
-   Sub-form: Nueva evaluación (bulk)
-   ================================================================ */
-
+/* ================================================================ */
 type EvalFormState = {
   asignatura_id: string;
   descripcion: string;
@@ -408,9 +410,9 @@ function NuevaEvaluacionForm({
   };
 
   return (
-    <div className="bg-white border border-[#c5c9d0] p-3 space-y-3 mb-3">
-      <h3 className="font-semibold text-[#1a1d23] text-[11px] uppercase tracking-wide">Nueva Evaluación</h3>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
+      <h3 className="font-bold text-slate-800 text-sm">Nueva evaluación</h3>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Field label="Asignatura *">
           <select value={form.asignatura_id} onChange={(e) => setForm({ ...form, asignatura_id: e.target.value })} className={`${input} bg-white`}>
             <option value="">—</option>
@@ -436,39 +438,36 @@ function NuevaEvaluacionForm({
       </div>
 
       <div>
-        <div className="text-[10px] font-semibold text-[#374151] mb-1">Notas de los estudiantes (vacío = pendiente)</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1">
+        <div className="text-xs font-semibold text-slate-600 mb-2">Notas de los estudiantes</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {estudiantes.map((e) => (
-            <div key={e.id} className="flex items-center gap-1 text-[11px]">
-              <span className="flex-1 truncate text-[#374151]">{e.apellido_paterno}, {e.nombres.split(" ")[0]}</span>
+            <div key={e.id} className="flex items-center gap-2 text-sm">
+              <span className="flex-1 truncate text-slate-600">{e.apellido_paterno}, {e.nombres.split(" ")[0]}</span>
               <input
                 type="text"
                 inputMode="decimal"
                 value={form.notas[e.id] || ""}
                 onChange={(ev) => setForm({ ...form, notas: { ...form.notas, [e.id]: ev.target.value } })}
                 placeholder="-"
-                className="w-12 text-center font-mono border border-[#c5c9d0] px-1 py-0.5 text-[11px]"
+                className="w-14 text-center font-mono rounded-lg border border-slate-200 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
               />
             </div>
           ))}
         </div>
       </div>
 
-      {error && <p className="text-[#991b1b] text-[11px]">{error}</p>}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
       <div className="flex gap-2">
-        <button onClick={guardar} className="bg-[#1a2b4a] text-white px-3 py-1 text-[11px] font-semibold hover:bg-[#2a3b5a]">
-          GUARDAR EVALUACIÓN
+        <button onClick={guardar} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
+          Guardar evaluación
         </button>
-        <button onClick={onCancel} className="px-3 py-1 text-[11px] border border-[#c5c9d0] hover:bg-[#f3f4f6]">CANCELAR</button>
+        <button onClick={onCancel} className="px-4 py-2 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-colors">Cancelar</button>
       </div>
     </div>
   );
 }
 
-/* ================================================================
-   Tab Asistencia
-   ================================================================ */
-
+/* ================================================================ */
 function TabAsistencia({ cursoId, estudiantes }: { cursoId: string; estudiantes: Estudiante[] }) {
   const [fecha, setFecha] = useState<string>(today());
   const [registros, setRegistros] = useState<Record<string, EstadoAsistencia>>({});
@@ -526,91 +525,92 @@ function TabAsistencia({ cursoId, estudiantes }: { cursoId: string; estudiantes:
   };
 
   return (
-    <div className="p-2">
-      <div className="flex flex-wrap gap-2 items-end mb-2">
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3 items-end">
         <Field label="Fecha">
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={input} />
         </Field>
-        <button onClick={marcarTodosPresentes} className="text-[11px] px-2 py-1 border border-[#c5c9d0] hover:bg-[#f3f4f6]">
-          MARCAR TODOS PRESENTES
+        <button onClick={marcarTodosPresentes} className="text-sm px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+          Marcar todos presentes
         </button>
-        <button onClick={guardar} disabled={guardando} className="bg-[#1a2b4a] text-white px-3 py-1 text-[11px] font-semibold hover:bg-[#2a3b5a] disabled:opacity-50">
-          {guardando ? "GUARDANDO…" : "GUARDAR ASISTENCIA"}
+        <button onClick={guardar} disabled={guardando} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-200 disabled:opacity-50 transition-colors">
+          {guardando ? "Guardando…" : "Guardar asistencia"}
         </button>
-        {msg && <span className="text-[11px] text-[#6b7280]">{msg}</span>}
+        {msg && <span className="text-sm text-slate-500">{msg}</span>}
       </div>
 
       {estudiantes.length === 0 ? (
-        <p className="text-[#9ca3af] italic text-[11px] py-8 text-center">Sin estudiantes matriculados.</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-slate-400">
+          Sin estudiantes matriculados.
+        </div>
       ) : (
-        <div className="overflow-x-auto border border-[#c5c9d0]">
-          <table className="w-full text-[11px] border-collapse">
-            <thead>
-              <tr className="bg-[#f3f4f6]">
-                <th className="px-2 py-1 text-left text-[10px] font-semibold text-[#374151] border border-[#c5c9d0]">N°</th>
-                <th className="px-2 py-1 text-left text-[10px] font-semibold text-[#374151] border border-[#c5c9d0]">Estudiante</th>
-                <th className="px-2 py-1 text-center text-[10px] font-semibold text-[#374151] border border-[#c5c9d0]">Estado</th>
-                <th className="px-2 py-1 text-left text-[10px] font-semibold text-[#374151] border border-[#c5c9d0]">Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {estudiantes.map((e, idx) => {
-                const sel = registros[e.id];
-                return (
-                  <tr key={e.id} className="border-b border-[#e5e7eb] hover:bg-[#f9fafb]">
-                    <td className="px-2 py-1 text-[#6b7280] text-[10px] border border-[#e5e7eb]">{idx + 1}</td>
-                    <td className="px-2 py-1 border border-[#e5e7eb]">
-                      <div className="font-medium text-[#1a1d23] text-[11px]">{e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}</div>
-                      <div className="text-[8px] text-[#9ca3af] font-mono">{e.rut}</div>
-                    </td>
-                    <td className="px-2 py-1 border border-[#e5e7eb]">
-                      <div className="flex justify-center gap-0.5">
-                        {ESTADOS.map((est) => (
-                          <button
-                            key={est}
-                            onClick={() => setEstado(e.id, est)}
-                            title={ESTADO_ASISTENCIA_LABELS[est]}
-                            className={`w-6 h-6 text-[9px] font-bold transition-all border ${
-                              sel === est
-                                ? ESTADO_ASISTENCIA_COLOR[est] + " border-transparent"
-                                : "bg-white text-[#9ca3af] border-[#c5c9d0] hover:bg-[#f3f4f6]"
-                            }`}
-                          >
-                            {ESTADO_ASISTENCIA_LETRA[est]}
-                          </button>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-2 py-1 border border-[#e5e7eb]">
-                      <input
-                        type="text"
-                        value={observaciones[e.id] || ""}
-                        onChange={(ev) => setObservaciones({ ...observaciones, [e.id]: ev.target.value })}
-                        placeholder="Opcional…"
-                        className="w-full text-[11px] border border-[#e5e7eb] px-1 py-0.5"
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50">
+                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-600">N°</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-600">Estudiante</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">Estado</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-slate-600">Observación</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {estudiantes.map((e, idx) => {
+                  const sel = registros[e.id];
+                  return (
+                    <tr key={e.id} className="hover:bg-blue-50/30 transition-colors">
+                      <td className="px-4 py-3 text-slate-400 text-xs">{idx + 1}</td>
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-slate-800 text-sm">{e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}</div>
+                        <div className="text-[11px] text-slate-400 font-mono">{e.rut}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center gap-1">
+                          {ESTADOS.map((est) => (
+                            <button
+                              key={est}
+                              onClick={() => setEstado(e.id, est)}
+                              title={ESTADO_ASISTENCIA_LABELS[est]}
+                              className={`w-9 h-9 rounded-lg text-xs font-bold transition-all ${
+                                sel === est
+                                  ? ESTADO_ASISTENCIA_COLOR[est] + " shadow-sm scale-105"
+                                  : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                              }`}
+                            >
+                              {ESTADO_ASISTENCIA_LETRA[est]}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={observaciones[e.id] || ""}
+                          onChange={(ev) => setObservaciones({ ...observaciones, [e.id]: ev.target.value })}
+                          placeholder="Opcional…"
+                          className="w-full text-sm rounded-lg border border-slate-200 px-3 py-1.5 focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      <div className="text-[10px] text-[#6b7280] flex gap-3 flex-wrap mt-2">
+      <div className="text-xs text-slate-400 flex gap-4 flex-wrap">
         {ESTADOS.map((est) => (
-          <span key={est}><strong>{ESTADO_ASISTENCIA_LETRA[est]}</strong> = {ESTADO_ASISTENCIA_LABELS[est]}</span>
+          <span key={est}><strong className="text-slate-600">{ESTADO_ASISTENCIA_LETRA[est]}</strong> = {ESTADO_ASISTENCIA_LABELS[est]}</span>
         ))}
       </div>
     </div>
   );
 }
 
-/* ================================================================
-   Tab Anotaciones
-   ================================================================ */
-
+/* ================================================================ */
 type AnotFormState = {
   estudiante_id: string;
   asignatura_id: string;
@@ -672,26 +672,26 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
   };
 
   return (
-    <div className="p-2">
-      <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} className="border border-[#c5c9d0] px-2 py-1 text-[11px] bg-white">
+          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} className="rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white focus:border-blue-400 focus:outline-none">
             <option value="">Todas las anotaciones</option>
             {TIPOS_ANOT.map((t) => <option key={t} value={t}>{TIPO_ANOTACION_LABELS[t]}</option>)}
           </select>
         </div>
         <button
           onClick={form ? () => setForm(null) : abrirNuevo}
-          className="bg-[#1a2b4a] text-white px-3 py-1 text-[11px] font-semibold hover:bg-[#2a3b5a]"
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors"
         >
-          {form ? "CANCELAR" : "+ NUEVA ANOTACIÓN"}
+          {form ? "Cancelar" : "+ Nueva anotación"}
         </button>
       </div>
 
       {form && (
-        <div className="bg-white border border-[#c5c9d0] p-3 space-y-3 mb-3">
-          <h3 className="font-semibold text-[#1a1d23] text-[11px] uppercase tracking-wide">Nueva Anotación</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-4">
+          <h3 className="font-bold text-slate-800 text-sm">Nueva anotación</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Field label="Estudiante *">
               <select value={form.estudiante_id} onChange={(e) => setForm({ ...form, estudiante_id: e.target.value })} className={`${input} bg-white`}>
                 <option value="">—</option>
@@ -714,13 +714,13 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
               <input type="date" value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} className={input} />
             </Field>
             <Field label="Tipo *">
-              <div className="flex gap-1">
+              <div className="flex gap-2">
                 {TIPOS_ANOT.map((t) => (
                   <button
                     key={t}
                     onClick={() => setForm({ ...form, tipo: t })}
-                    className={`flex-1 text-[10px] px-2 py-1 border transition-colors ${
-                      form.tipo === t ? TIPO_ANOTACION_COLOR[t] + " font-semibold" : "border-[#c5c9d0] hover:bg-[#f3f4f6]"
+                    className={`flex-1 text-xs px-3 py-2 rounded-xl border transition-colors ${
+                      form.tipo === t ? TIPO_ANOTACION_COLOR[t] + " font-semibold" : "border-slate-200 hover:bg-slate-50"
                     }`}
                   >
                     {TIPO_ANOTACION_LABELS[t]}
@@ -738,41 +738,41 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
               value={form.descripcion}
               onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
               placeholder="Detalle de lo ocurrido…"
-              className={`${input} resize-y`}
+              className={`${input} resize-y rounded-xl`}
             />
           </Field>
-          {error && <p className="text-[#991b1b] text-[11px]">{error}</p>}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex gap-2">
-            <button onClick={guardar} className="bg-[#1a2b4a] text-white px-3 py-1 text-[11px] font-semibold hover:bg-[#2a3b5a]">
-              GUARDAR ANOTACIÓN
+            <button onClick={guardar} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm shadow-blue-200 transition-colors">
+              Guardar anotación
             </button>
-            <button onClick={() => setForm(null)} className="px-3 py-1 text-[11px] border border-[#c5c9d0] hover:bg-[#f3f4f6]">CANCELAR</button>
+            <button onClick={() => setForm(null)} className="px-4 py-2 rounded-xl text-sm text-slate-500 hover:bg-slate-50 transition-colors">Cancelar</button>
           </div>
         </div>
       )}
 
       {anotaciones.length === 0 ? (
-        <div className="bg-white border border-[#c5c9d0] p-12 text-center text-[#9ca3af] text-[11px]">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center text-slate-400">
           Sin anotaciones en este filtro.
         </div>
       ) : (
-        <div className="border border-[#c5c9d0]">
-          {anotaciones.map((a, idx) => (
-            <div key={a.id} className={`bg-white border-b border-[#e5e7eb] p-2 flex gap-2 ${idx === anotaciones.length - 1 ? 'border-b-0' : ''}`}>
+        <div className="space-y-3">
+          {anotaciones.map((a) => (
+            <div key={a.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex gap-3 hover:shadow-md transition-shadow">
               <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                  <span className={`text-[9px] font-semibold px-1.5 py-0.5 ${TIPO_ANOTACION_COLOR[a.tipo]}`}>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-lg ${TIPO_ANOTACION_COLOR[a.tipo]}`}>
                     {TIPO_ANOTACION_LABELS[a.tipo]}
                   </span>
-                  <span className="font-medium text-[#1a1d23] text-[11px]">{a.estudiante_nombre}</span>
-                  {a.asignatura_nombre && <span className="text-[#6b7280] text-[10px]">· {a.asignatura_nombre}</span>}
-                  {a.categoria && <span className="text-[9px] px-1.5 py-0.5 bg-[#f3f4f6] text-[#6b7280]">{a.categoria}</span>}
-                  <span className="text-[9px] text-[#9ca3af] ml-auto">{a.fecha}</span>
+                  <span className="font-semibold text-slate-800">{a.estudiante_nombre}</span>
+                  {a.asignatura_nombre && <span className="text-slate-400">· {a.asignatura_nombre}</span>}
+                  {a.categoria && <span className="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-500">{a.categoria}</span>}
+                  <span className="text-xs text-slate-300 ml-auto">{a.fecha}</span>
                 </div>
-                <p className="mt-0.5 text-[11px] text-[#374151] whitespace-pre-line">{a.descripcion}</p>
-                {a.docente_nombre && <p className="text-[9px] text-[#9ca3af] mt-0.5">— {a.docente_nombre}</p>}
+                <p className="mt-2 text-sm text-slate-600 whitespace-pre-line">{a.descripcion}</p>
+                {a.docente_nombre && <p className="text-xs text-slate-400 mt-2">— {a.docente_nombre}</p>}
               </div>
-              <button onClick={() => eliminar(a)} className="text-[#d1d5db] hover:text-[#991b1b] text-[11px] self-start">✕</button>
+              <button onClick={() => eliminar(a)} className="text-slate-300 hover:text-red-500 text-sm self-start transition-colors">✕</button>
             </div>
           ))}
         </div>
@@ -781,10 +781,7 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
   );
 }
 
-/* ================================================================
-   Helpers
-   ================================================================ */
-
+/* ================================================================ */
 function Selector({ label, value, onChange, options }: {
   label: string;
   value: string;
@@ -803,21 +800,21 @@ function Selector({ label, value, onChange, options }: {
   const selected = options.find((o) => o.id === value);
   return (
     <div ref={ref} className="relative">
-      <span className="text-[9px] font-bold text-[#6b7280] uppercase tracking-wider block mb-0.5">{label}</span>
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{label}</span>
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full text-left bg-white border border-[#c5c9d0] px-2 py-1 text-[11px] text-[#1a1d23] hover:border-[#9ca3af] focus:border-[#1a2b4a] focus:outline-none flex items-center justify-between min-w-[180px]"
+        className="w-full text-left bg-white border border-slate-200 px-3 py-2 rounded-xl text-sm text-slate-700 hover:border-blue-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 flex items-center justify-between min-w-[200px] transition-all"
       >
-        <span className={selected ? "" : "text-[#9ca3af] italic"}>{selected?.label || "Seleccionar…"}</span>
-        <svg className="w-3 h-3 text-[#9ca3af] ml-2" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5"/></svg>
+        <span className={selected ? "" : "text-slate-400 italic"}>{selected?.label || "Seleccionar…"}</span>
+        <svg className="w-4 h-4 text-slate-400 ml-2" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5"/></svg>
       </button>
       {open && (
-        <div className="absolute z-50 mt-0.5 w-full bg-white border border-[#c5c9d0] shadow-md max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-auto">
           <button
             type="button"
             onClick={() => { onChange(""); setOpen(false); }}
-            className={`w-full text-left px-2 py-1 text-[11px] hover:bg-[#f3f4f6] ${!value ? "bg-[#f3f4f6] text-[#1a2b4a] font-semibold" : "text-[#9ca3af] italic"}`}
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 ${!value ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-400 italic"}`}
           >
             — {label === "Curso" ? "Todos los cursos" : "Todos"}
           </button>
@@ -826,7 +823,7 @@ function Selector({ label, value, onChange, options }: {
               key={o.id}
               type="button"
               onClick={() => { onChange(o.id); setOpen(false); }}
-              className={`w-full text-left px-2 py-1 text-[11px] hover:bg-[#f3f4f6] ${o.id === value ? "bg-[#f3f4f6] text-[#1a2b4a] font-semibold" : "text-[#374151]"}`}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 ${o.id === value ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700"}`}
             >
               {o.label}
             </button>
@@ -837,12 +834,12 @@ function Selector({ label, value, onChange, options }: {
   );
 }
 
-const input = "w-full border border-[#c5c9d0] px-2 py-1 text-[11px]";
+const input = "w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none transition-colors";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[9px] font-bold text-[#6b7280] uppercase tracking-wider block mb-0.5">{label}</span>
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{label}</span>
       {children}
     </label>
   );

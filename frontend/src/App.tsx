@@ -26,19 +26,16 @@ import PIEPage from "./pages/PIEPage";
 
 function AppLayout() {
   return (
-    <div className="h-screen bg-[#f0f2f5] flex">
+    <div className="h-screen bg-white flex">
       <Sidebar />
-      <div className="flex-1 ml-56 flex flex-col min-h-0">
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="flex-1 ml-64 flex flex-col min-h-0">
+        <main className="flex-1 overflow-auto bg-slate-50/50">
+          <div className="max-w-7xl mx-auto px-6 py-6">
             <Routes>
-              {/* Módulo CEIS — Instrumentos */}
               <Route path="/" element={<BankPage />} />
               <Route path="/generar" element={<GeneratorPage />} />
               <Route path="/pruebas" element={<TestsPage />} />
               <Route path="/aplicaciones" element={<AplicacionesPage />} />
-
-              {/* Módulo Gestión Escolar */}
               <Route path="/gestion" element={<DashboardPage />} />
               <Route path="/colegios" element={<ColegiosPage />} />
               <Route path="/cursos" element={<CursosPage />} />
@@ -55,9 +52,6 @@ function AppLayout() {
             </Routes>
           </div>
         </main>
-        <footer className="px-4 py-2 text-center text-[10px] text-slate-400 border-t border-slate-200 bg-white shrink-0">
-          CEIS Maristas · Gestión Escolar
-        </footer>
       </div>
     </div>
   );
