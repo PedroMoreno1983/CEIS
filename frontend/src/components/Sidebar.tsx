@@ -1,22 +1,35 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const CEIS_ROUTES = ["/", "/generar", "/pruebas", "/aplicaciones"];
+type SectionColor = "blue" | "slate" | "violet";
 
-function useActiveModule(): "ceis" | "gestion" {
-  const { pathname } = useLocation();
-  return CEIS_ROUTES.includes(pathname) ? "ceis" : "gestion";
-}
+const SECTION_COLORS: Record<SectionColor, { active: string; inactive: string }> = {
+  blue: {
+    active: "bg-blue-50 text-blue-700 font-semibold shadow-sm",
+    inactive: "text-slate-500 hover:bg-blue-50/50 hover:text-blue-600",
+  },
+  slate: {
+    active: "bg-slate-100 text-slate-800 font-semibold shadow-sm",
+    inactive: "text-slate-500 hover:bg-slate-50 hover:text-slate-700",
+  },
+  violet: {
+    active: "bg-violet-50 text-violet-700 font-semibold shadow-sm",
+    inactive: "text-slate-500 hover:bg-violet-50/50 hover:text-violet-600",
+  },
+};
 
 function SidebarLink({
   to,
   label,
   icon,
+  color = "slate",
 }: {
   to: string;
   label: string;
   icon: React.ReactNode;
+  color?: SectionColor;
 }) {
+  const colors = SECTION_COLORS[color];
   return (
     <NavLink
       to={to}
@@ -24,9 +37,7 @@ function SidebarLink({
       className={({ isActive }) =>
         [
           "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-200",
-          isActive
-            ? "bg-blue-50 text-blue-700 font-semibold shadow-sm"
-            : "text-slate-500 hover:bg-slate-50 hover:text-slate-700",
+          isActive ? colors.active : colors.inactive,
         ].join(" ")
       }
     >
@@ -36,7 +47,7 @@ function SidebarLink({
   );
 }
 
-const CEIS_LINKS = [
+const INSTRUMENTOS_LINKS = [
   { to: "/", label: "Banco de Ítems", icon: <BankIcon /> },
   { to: "/generar", label: "Generador IA", icon: <SparkIcon /> },
   { to: "/pruebas", label: "Pruebas", icon: <DocIcon /> },
@@ -44,7 +55,7 @@ const CEIS_LINKS = [
 ];
 
 const GESTION_LINKS = [
-  { to: "/gestion", label: "Inicio", icon: <HomeIcon />, roles: ["admin", "directivo", "orientador", "docente", "apoderado"] },
+  { to: "/gestion", label: "Dashboard", icon: <HomeIcon />, roles: ["admin", "directivo", "orientador", "docente", "apoderado"] },
   { to: "/libro", label: "Libro de Clases", icon: <BookIcon />, roles: ["admin", "directivo", "orientador", "docente"] },
   { to: "/estudiantes", label: "Estudiantes", icon: <GraduationIcon />, roles: ["admin", "directivo", "orientador", "docente"] },
   { to: "/cursos", label: "Cursos", icon: <UsersIcon />, roles: ["admin", "directivo", "docente"] },
@@ -58,17 +69,21 @@ const GESTION_LINKS = [
   { to: "/periodos", label: "Períodos", icon: <CalendarIcon />, roles: ["admin", "directivo", "docente"] },
 ];
 
+const PREDICCION_LINKS = [
+  { to: "/prediccion", label: "Análisis y predicción", icon: <ChartIcon /> },
+];
+
 export default function Sidebar() {
   const { usuario } = useAuth();
   const rol = usuario?.rol || "";
 
-  const verCeis = ["admin", "orientador"].includes(rol);
+  const verInstrumentos = ["admin", "orientador"].includes(rol);
   const linksGestion = GESTION_LINKS.filter((l) => l.roles.includes(rol));
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-100 flex flex-col z-40">
       {/* Logo */}
-      <div className="px-5 py-6">
+      <Link to="/" className="px-5 py-6 block">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-200">
             C
@@ -82,35 +97,52 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-6 scrollbar-hide">
-        {verCeis && (
+        {/* Instrumentos */}
+        {verInstrumentos && (
           <div>
-            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Orientación Vocacional
+            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              Instrumentos
             </div>
             <div className="space-y-0.5">
-              {CEIS_LINKS.map((l) => (
-                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} />
+              {INSTRUMENTOS_LINKS.map((l) => (
+                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} color="blue" />
               ))}
             </div>
           </div>
         )}
 
+        {/* Gestión Escolar */}
         {linksGestion.length > 0 && (
           <div>
-            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
               Gestión Escolar
             </div>
             <div className="space-y-0.5">
               {linksGestion.map((l) => (
-                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} />
+                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} color="slate" />
               ))}
             </div>
           </div>
         )}
+
+        {/* Predicción */}
+        <div>
+          <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-violet-400 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+            Predicción
+          </div>
+          <div className="space-y-0.5">
+            {PREDICCION_LINKS.map((l) => (
+              <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} color="violet" />
+            ))}
+          </div>
+        </div>
       </nav>
 
       {/* Usuario */}
@@ -147,8 +179,7 @@ function UserBar() {
   );
 }
 
-/* ── Iconos outline estilo Notasnet ── */
-
+/* ── Iconos outline ── */
 function HomeIcon() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 }
@@ -196,6 +227,9 @@ function DocIcon() {
 }
 function ClipboardIcon() {
   return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>;
+}
+function ChartIcon() {
+  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
 }
 function LogoutIcon() {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;

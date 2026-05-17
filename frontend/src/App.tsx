@@ -3,12 +3,14 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import HomePage from "./pages/HomePage";
 import BankPage from "./pages/BankPage";
 import GeneratorPage from "./pages/GeneratorPage";
 import TestsPage from "./pages/TestsPage";
 import AplicacionesPage from "./pages/AplicacionesPage";
 import AplicarPage from "./pages/AplicarPage";
 import LoginPage from "./pages/LoginPage";
+import PlaceholderPage from "./pages/PlaceholderPage";
 
 import DashboardPage from "./pages/DashboardPage";
 import ColegiosPage from "./pages/ColegiosPage";
@@ -51,7 +53,8 @@ function AppLayout() {
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-6">
             <Routes>
-              <Route path="/" element={<BankPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/prediccion" element={<PlaceholderPage />} />
               <Route path="/generar" element={<GeneratorPage />} />
               <Route path="/pruebas" element={<TestsPage />} />
               <Route path="/aplicaciones" element={<AplicacionesPage />} />
