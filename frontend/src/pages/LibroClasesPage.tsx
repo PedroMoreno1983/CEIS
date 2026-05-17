@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import PageHeader from "../components/ui/PageHeader";
-import Card from "../components/ui/Card";
+
 import { ColegiosAPI, CursosAPI } from "../api-gestion";
 import {
   AnotacionesAPI, AsistenciaAPI, CalificacionesAPI, CargaAPI, PeriodosAPI,
@@ -63,41 +62,43 @@ export default function LibroClasesPage() {
   const periodoSel = periodos.find((p) => p.id === periodoId);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Libro de clases"
-        subtitle="Notas, asistencia y anotaciones por curso y período."
-      />
-
-      {/* Selectores */}
-      <Card>
-        <div className="flex flex-wrap gap-3 items-end">
-        <Selector label="Colegio" value={colegioId} onChange={setColegioId} options={colegios.map((c) => ({ id: c.id, label: c.nombre }))} />
-        <Selector
-          label="Curso"
-          value={cursoId}
-          onChange={setCursoId}
-          options={cursos.map((c) => ({ id: c.id, label: `${NIVEL_CURSO_LABELS[c.nivel]} ${c.letra} · ${c.ano}` }))}
-        />
-        <Selector
-          label="Período"
-          value={periodoId}
-          onChange={setPeriodoId}
-          options={periodos.map((p) => ({ id: p.id, label: p.nombre }))}
-        />
+    <div>
+      {/* Header de planilla */}
+      <div className="bg-white border border-slate-300 px-4 py-3 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Selector label="Colegio" value={colegioId} onChange={setColegioId} options={colegios.map((c) => ({ id: c.id, label: c.nombre }))} />
+          <Selector
+            label="Curso"
+            value={cursoId}
+            onChange={setCursoId}
+            options={cursos.map((c) => ({ id: c.id, label: `${NIVEL_CURSO_LABELS[c.nivel]} ${c.letra} · ${c.ano}` }))}
+          />
+          <Selector
+            label="Período"
+            value={periodoId}
+            onChange={setPeriodoId}
+            options={periodos.map((p) => ({ id: p.id, label: p.nombre }))}
+          />
         </div>
-      </Card>
+        {cursoSel && (
+          <div className="ml-auto text-sm text-slate-600">
+            <span className="font-semibold">{NIVEL_CURSO_LABELS[cursoSel.nivel]} {cursoSel.letra}</span>
+            <span className="text-slate-400 mx-2">·</span>
+            <span>{cursoSel.ano}</span>
+          </div>
+        )}
+      </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 flex gap-1">
+      <div className="bg-white border-x border-b border-slate-300 flex -mt-px">
         {(["notas", "asistencia", "anotaciones"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
               tab === t
-                ? "border-ceis-primary text-ceis-primary"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "border-[#1a2b4a] text-[#1a2b4a] bg-slate-50"
+                : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
             }`}
           >
             {t === "notas" ? "Notas" : t === "asistencia" ? "Asistencia" : "Anotaciones"}
@@ -106,8 +107,9 @@ export default function LibroClasesPage() {
       </div>
 
       {/* Contenido del tab */}
+      <div className="bg-white border border-slate-300 border-t-0 p-4 -mt-px">
       {!cursoId ? (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-12 text-center text-slate-500">
+        <div className="p-12 text-center text-slate-500 text-sm">
           Selecciona un curso para empezar.
         </div>
       ) : tab === "notas" ? (
@@ -124,6 +126,7 @@ export default function LibroClasesPage() {
       ) : (
         <TabAnotaciones cursoId={cursoId} estudiantes={estudiantes} carga={carga} />
       )}
+      </div>
     </div>
   );
 }
@@ -202,12 +205,12 @@ function TabNotas({
   }, [columnas]);
 
   if (!periodoId) {
-    return <div className="bg-slate-50 border border-slate-200 rounded-lg p-12 text-center text-slate-500">Selecciona un período.</div>;
+    return <div className="bg-white border border-slate-300 p-12 text-center text-slate-500 text-sm">Selecciona un período.</div>;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-slate-500">
           {cursoLabel} · {periodoLabel} · {estudiantes.length} estudiantes · {columnas.length} evaluaciones
         </p>
@@ -220,7 +223,7 @@ function TabNotas({
             ponderacion: 100,
             notas: Object.fromEntries(estudiantes.map((e) => [e.id, ""])),
           })}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
+          className="bg-[#1a2b4a] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a3b5a]"
         >
           + Nueva evaluación
         </button>
@@ -239,46 +242,46 @@ function TabNotas({
       )}
 
       {estudiantes.length === 0 ? (
-        <p className="text-slate-400 italic">Este curso no tiene estudiantes matriculados.</p>
+        <p className="text-slate-400 italic text-sm py-8 text-center">Este curso no tiene estudiantes matriculados.</p>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
-          <table className="text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs uppercase tracking-wider text-slate-500 sticky left-0 bg-slate-50 z-10 border-r border-slate-200">
+        <div className="bg-white border border-slate-300 overflow-x-auto">
+          <table className="text-sm border-collapse w-full">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600 sticky left-0 bg-slate-100 z-10 border border-slate-300 min-w-[160px]">
                   Estudiante
                 </th>
                 {columnas.map((col) => (
-                  <th key={`${col.asignatura_id}|${col.descripcion}|${col.fecha}`} className="px-2 py-2 text-center border-l border-slate-100" title={`${col.asignatura_codigo} · ${col.descripcion}`}>
-                    <div className="text-[10px] font-semibold text-ceis-primary">{col.asignatura_codigo}</div>
-                    <div className="text-xs text-slate-700 max-w-[120px] truncate">{col.descripcion}</div>
-                    <div className="text-[10px] text-slate-400">{col.fecha}</div>
+                  <th key={`${col.asignatura_id}|${col.descripcion}|${col.fecha}`} className="px-2 py-2 text-center border border-slate-300 text-xs font-medium text-slate-600 min-w-[80px]" title={`${col.asignatura_codigo} · ${col.descripcion}`}>
+                    <div className="text-[10px] font-bold text-[#1a2b4a]">{col.asignatura_codigo}</div>
+                    <div className="text-[10px] text-slate-500 max-w-[100px] truncate">{col.descripcion}</div>
+                    <div className="text-[9px] text-slate-400">{col.fecha}</div>
                   </th>
                 ))}
                 {asignaturasUnicas.map((a) => (
-                  <th key={`prom-${a.id}`} className="px-2 py-2 text-center border-l-2 border-slate-300 bg-slate-100">
-                    <div className="text-[10px] font-semibold text-slate-700">Prom {a.codigo}</div>
+                  <th key={`prom-${a.id}`} className="px-2 py-2 text-center border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 min-w-[60px]">
+                    Prom {a.codigo}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {estudiantes.map((est) => (
-                <tr key={est.id} className="hover:bg-slate-50">
-                  <td className="px-3 py-2 sticky left-0 bg-white z-10 border-r border-slate-200">
-                    <div className="text-slate-900 font-medium">{est.apellido_paterno}, {est.nombres.split(" ")[0]}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{est.rut}</div>
+                <tr key={est.id} className="hover:bg-slate-50 border-b border-slate-200">
+                  <td className="px-3 py-2 sticky left-0 bg-white z-10 border border-slate-300">
+                    <div className="text-slate-900 font-medium text-xs">{est.apellido_paterno}, {est.nombres.split(" ")[0]}</div>
+                    <div className="text-[9px] text-slate-400 font-mono">{est.rut}</div>
                   </td>
                   {columnas.map((col) => {
                     const cal = notaPorCelda.get(`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`);
                     return (
                       <td
                         key={`${est.id}|${col.asignatura_id}|${col.descripcion}|${col.fecha}`}
-                        className="px-2 py-2 text-center border-l border-slate-100 cursor-pointer hover:bg-blue-50"
+                        className="px-1 py-1 text-center border border-slate-200 cursor-pointer hover:bg-blue-50 min-w-[60px]"
                         onClick={() => cal && editarNotaInline(cal, cargar)}
                       >
                         {cal?.nota
-                          ? <span className={`font-mono font-semibold ${parseFloat(cal.nota) < 4 ? "text-rose-600" : "text-slate-900"}`}>
+                          ? <span className={`font-mono font-semibold text-sm ${parseFloat(cal.nota) < 4 ? "text-red-700 bg-red-50" : "text-slate-900"}`}>
                               {parseFloat(cal.nota).toFixed(1)}
                             </span>
                           : <span className="text-slate-300">—</span>}
@@ -288,9 +291,9 @@ function TabNotas({
                   {asignaturasUnicas.map((a) => {
                     const p = promediosPorAsignatura.get(`${est.id}|${a.id}`);
                     return (
-                      <td key={`prom-${est.id}-${a.id}`} className="px-2 py-2 text-center border-l-2 border-slate-300 bg-slate-50">
+                      <td key={`prom-${est.id}-${a.id}`} className="px-2 py-2 text-center border border-slate-300 bg-slate-50">
                         {p != null
-                          ? <span className={`font-mono font-bold ${p < 4 ? "text-rose-600" : "text-emerald-700"}`}>{p.toFixed(1)}</span>
+                          ? <span className={`font-mono font-bold text-sm ${p < 4 ? "text-red-700" : "text-emerald-700"}`}>{p.toFixed(1)}</span>
                           : <span className="text-slate-300">—</span>}
                       </td>
                     );
@@ -385,8 +388,8 @@ function NuevaEvaluacionForm({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-ceis-accent border-l-4 p-6 space-y-4">
-      <h3 className="font-semibold text-slate-900">Nueva evaluación</h3>
+    <div className="bg-white border border-slate-300 p-4 space-y-4 mb-4">
+      <h3 className="font-semibold text-slate-900 text-sm">Nueva evaluación</h3>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Field label="Asignatura *">
           <select value={form.asignatura_id} onChange={(e) => setForm({ ...form, asignatura_id: e.target.value })} className={`${input} bg-white`}>
@@ -431,12 +434,12 @@ function NuevaEvaluacionForm({
         </div>
       </div>
 
-      {error && <p className="text-rose-600 text-sm">{error}</p>}
+      {error && <p className="text-red-700 text-sm">{error}</p>}
       <div className="flex gap-2">
-        <button onClick={guardar} className="bg-ceis-primary text-white px-4 py-2 rounded font-medium hover:bg-blue-800">
+        <button onClick={guardar} className="bg-[#1a2b4a] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a3b5a]">
           Guardar evaluación
         </button>
-        <button onClick={onCancel} className="px-4 py-2 rounded border border-slate-300 hover:bg-slate-50">Cancelar</button>
+        <button onClick={onCancel} className="px-4 py-2 text-sm border border-slate-300 hover:bg-slate-50">Cancelar</button>
       </div>
     </div>
   );
@@ -504,54 +507,54 @@ function TabAsistencia({ cursoId, estudiantes }: { cursoId: string; estudiantes:
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-3 items-end">
+    <div>
+      <div className="flex flex-wrap gap-3 items-end mb-4">
         <Field label="Fecha">
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={input} />
         </Field>
-        <button onClick={marcarTodosPresentes} className="text-sm px-3 py-2 rounded border border-slate-300 hover:bg-slate-50">
+        <button onClick={marcarTodosPresentes} className="text-sm px-3 py-2 border border-slate-300 hover:bg-slate-50">
           Marcar todos presentes
         </button>
-        <button onClick={guardar} disabled={guardando} className="bg-ceis-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800 disabled:opacity-50">
+        <button onClick={guardar} disabled={guardando} className="bg-[#1a2b4a] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a3b5a] disabled:opacity-50">
           {guardando ? "Guardando…" : "Guardar asistencia"}
         </button>
         {msg && <span className="text-sm text-slate-600">{msg}</span>}
       </div>
 
       {estudiantes.length === 0 ? (
-        <p className="text-slate-400 italic">Sin estudiantes matriculados.</p>
+        <p className="text-slate-400 italic text-sm py-8 text-center">Sin estudiantes matriculados.</p>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-                <th className="px-3 py-2">N°</th>
-                <th className="px-3 py-2">Estudiante</th>
-                <th className="px-3 py-2 text-center">Estado</th>
-                <th className="px-3 py-2">Observación</th>
+        <div className="bg-white border border-slate-300 overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-100">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600 border border-slate-300">N°</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600 border border-slate-300">Estudiante</th>
+                <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 border border-slate-300">Estado</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-600 border border-slate-300">Observación</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {estudiantes.map((e, idx) => {
                 const sel = registros[e.id];
                 return (
-                  <tr key={e.id}>
-                    <td className="px-3 py-2 text-slate-500">{idx + 1}</td>
-                    <td className="px-3 py-2">
-                      <div className="font-medium text-slate-900">{e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{e.rut}</div>
+                  <tr key={e.id} className="border-b border-slate-200 hover:bg-slate-50">
+                    <td className="px-3 py-2 text-slate-500 text-xs border border-slate-200">{idx + 1}</td>
+                    <td className="px-3 py-2 border border-slate-200">
+                      <div className="font-medium text-slate-900 text-xs">{e.apellido_paterno} {e.apellido_materno || ""}, {e.nombres}</div>
+                      <div className="text-[9px] text-slate-400 font-mono">{e.rut}</div>
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 border border-slate-200">
                       <div className="flex justify-center gap-1">
                         {ESTADOS.map((est) => (
                           <button
                             key={est}
                             onClick={() => setEstado(e.id, est)}
                             title={ESTADO_ASISTENCIA_LABELS[est]}
-                            className={`w-8 h-8 rounded text-xs font-bold transition-all ${
+                            className={`w-7 h-7 text-[10px] font-bold transition-all border ${
                               sel === est
-                                ? ESTADO_ASISTENCIA_COLOR[est] + " ring-2 ring-offset-1 ring-slate-400"
-                                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                ? ESTADO_ASISTENCIA_COLOR[est] + " border-transparent"
+                                : "bg-white text-slate-400 border-slate-300 hover:bg-slate-100"
                             }`}
                           >
                             {ESTADO_ASISTENCIA_LETRA[est]}
@@ -559,13 +562,13 @@ function TabAsistencia({ cursoId, estudiantes }: { cursoId: string; estudiantes:
                         ))}
                       </div>
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 border border-slate-200">
                       <input
                         type="text"
                         value={observaciones[e.id] || ""}
                         onChange={(ev) => setObservaciones({ ...observaciones, [e.id]: ev.target.value })}
                         placeholder="Opcional…"
-                        className="w-full text-sm rounded border border-slate-200 px-2 py-1"
+                        className="w-full text-xs border border-slate-200 px-2 py-1"
                       />
                     </td>
                   </tr>
@@ -576,7 +579,7 @@ function TabAsistencia({ cursoId, estudiantes }: { cursoId: string; estudiantes:
         </div>
       )}
 
-      <div className="text-xs text-slate-500 flex gap-3 flex-wrap">
+      <div className="text-xs text-slate-500 flex gap-3 flex-wrap mt-3">
         {ESTADOS.map((est) => (
           <span key={est}><strong>{ESTADO_ASISTENCIA_LETRA[est]}</strong> = {ESTADO_ASISTENCIA_LABELS[est]}</span>
         ))}
@@ -650,25 +653,25 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center flex-wrap gap-3">
+    <div>
+      <div className="flex justify-between items-center flex-wrap gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} className="rounded border border-slate-300 px-3 py-1.5 text-sm bg-white">
+          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} className="border border-slate-300 px-3 py-1.5 text-sm bg-white">
             <option value="">Todas las anotaciones</option>
             {TIPOS_ANOT.map((t) => <option key={t} value={t}>{TIPO_ANOTACION_LABELS[t]}</option>)}
           </select>
         </div>
         <button
           onClick={form ? () => setForm(null) : abrirNuevo}
-          className="bg-ceis-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
+          className="bg-[#1a2b4a] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a3b5a]"
         >
           {form ? "Cancelar" : "+ Nueva anotación"}
         </button>
       </div>
 
       {form && (
-        <div className="bg-white rounded-lg border border-ceis-accent border-l-4 p-6 space-y-4">
-          <h3 className="font-semibold text-slate-900">Nueva anotación</h3>
+        <div className="bg-white border border-slate-300 p-4 space-y-4 mb-4">
+          <h3 className="font-semibold text-slate-900 text-sm">Nueva anotación</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Field label="Estudiante *">
               <select value={form.estudiante_id} onChange={(e) => setForm({ ...form, estudiante_id: e.target.value })} className={`${input} bg-white`}>
@@ -697,7 +700,7 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
                   <button
                     key={t}
                     onClick={() => setForm({ ...form, tipo: t })}
-                    className={`flex-1 text-xs px-2 py-2 rounded border transition-colors ${
+                    className={`flex-1 text-xs px-2 py-2 border transition-colors ${
                       form.tipo === t ? TIPO_ANOTACION_COLOR[t] + " font-semibold" : "border-slate-300 hover:bg-slate-50"
                     }`}
                   >
@@ -719,38 +722,38 @@ function TabAnotaciones({ cursoId, estudiantes, carga }: { cursoId: string; estu
               className={`${input} resize-y`}
             />
           </Field>
-          {error && <p className="text-rose-600 text-sm">{error}</p>}
+          {error && <p className="text-red-700 text-sm">{error}</p>}
           <div className="flex gap-2">
-            <button onClick={guardar} className="bg-ceis-primary text-white px-4 py-2 rounded font-medium hover:bg-blue-800">
+            <button onClick={guardar} className="bg-[#1a2b4a] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a3b5a]">
               Guardar anotación
             </button>
-            <button onClick={() => setForm(null)} className="px-4 py-2 rounded border border-slate-300 hover:bg-slate-50">Cancelar</button>
+            <button onClick={() => setForm(null)} className="px-4 py-2 text-sm border border-slate-300 hover:bg-slate-50">Cancelar</button>
           </div>
         </div>
       )}
 
       {anotaciones.length === 0 ? (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-12 text-center text-slate-400">
+        <div className="bg-white border border-slate-300 p-12 text-center text-slate-400 text-sm">
           Sin anotaciones en este filtro.
         </div>
       ) : (
-        <div className="space-y-2">
-          {anotaciones.map((a) => (
-            <div key={a.id} className={`bg-white rounded-lg border-l-4 ${TIPO_ANOTACION_COLOR[a.tipo].split(" ").find((c) => c.startsWith("border")) || "border-slate-200"} border-y border-r border-slate-200 p-4 flex gap-3`}>
+        <div className="border border-slate-300">
+          {anotaciones.map((a, idx) => (
+            <div key={a.id} className={`bg-white border-b border-slate-200 p-3 flex gap-3 ${idx === anotaciones.length - 1 ? 'border-b-0' : ''}`}>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${TIPO_ANOTACION_COLOR[a.tipo]}`}>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 ${TIPO_ANOTACION_COLOR[a.tipo]}`}>
                     {TIPO_ANOTACION_LABELS[a.tipo]}
                   </span>
-                  <span className="font-medium text-slate-900">{a.estudiante_nombre}</span>
-                  {a.asignatura_nombre && <span className="text-slate-500">· {a.asignatura_nombre}</span>}
-                  {a.categoria && <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-600">{a.categoria}</span>}
-                  <span className="text-xs text-slate-400 ml-auto">{a.fecha}</span>
+                  <span className="font-medium text-slate-900 text-xs">{a.estudiante_nombre}</span>
+                  {a.asignatura_nombre && <span className="text-slate-500 text-xs">· {a.asignatura_nombre}</span>}
+                  {a.categoria && <span className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600">{a.categoria}</span>}
+                  <span className="text-[10px] text-slate-400 ml-auto">{a.fecha}</span>
                 </div>
-                <p className="mt-2 text-sm text-slate-700 whitespace-pre-line">{a.descripcion}</p>
-                {a.docente_nombre && <p className="text-xs text-slate-400 mt-2">— {a.docente_nombre}</p>}
+                <p className="mt-1 text-xs text-slate-700 whitespace-pre-line">{a.descripcion}</p>
+                {a.docente_nombre && <p className="text-[10px] text-slate-400 mt-1">— {a.docente_nombre}</p>}
               </div>
-              <button onClick={() => eliminar(a)} className="text-slate-300 hover:text-rose-600 text-sm self-start">✕</button>
+              <button onClick={() => eliminar(a)} className="text-slate-300 hover:text-red-700 text-xs self-start">✕</button>
             </div>
           ))}
         </div>

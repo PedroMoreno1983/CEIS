@@ -1,7 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
-import ModuleHeader from "./components/ModuleHeader";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import BankPage from "./pages/BankPage";
@@ -27,11 +26,10 @@ import PIEPage from "./pages/PIEPage";
 
 function AppLayout() {
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-[#f5f7fa] flex">
       <Sidebar />
-      <div className="flex-1 ml-64">
-        <main className="max-w-7xl mx-auto px-8 py-8">
-          <ModuleHeader />
+      <div className="flex-1 ml-56">
+        <main className="max-w-7xl mx-auto px-6 py-6">
           <Routes>
             {/* Módulo CEIS — Instrumentos */}
             <Route path="/" element={<BankPage />} />
@@ -55,8 +53,8 @@ function AppLayout() {
             <Route path="/periodos" element={<PeriodosPage />} />
           </Routes>
         </main>
-        <footer className="px-8 py-4 text-center text-xs text-slate-400 border-t border-slate-200">
-          CEIS Maristas · Sistema de Instrumentos y Gestión Escolar
+        <footer className="px-6 py-3 text-center text-[11px] text-slate-400 border-t border-slate-200">
+          CEIS Maristas · Gestión Escolar
         </footer>
       </div>
     </div>
