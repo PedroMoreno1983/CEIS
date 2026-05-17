@@ -85,7 +85,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-6">
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-6 scrollbar-hide">
         {verCeis && (
           <div>
             <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">

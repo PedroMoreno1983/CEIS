@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         ceis: {
-          primary: "#1e40af",
-          accent: "#0ea5e9",
-          dark: "#0f172a",
+          primary: "#2563eb",
+          accent: "#3b82f6",
+          dark: "#1e293b",
         },
       },
     },
