@@ -26,34 +26,36 @@ import PIEPage from "./pages/PIEPage";
 
 function AppLayout() {
   return (
-    <div className="min-h-screen bg-[#f5f7fa] flex">
+    <div className="h-screen bg-[#f0f2f5] flex">
       <Sidebar />
-      <div className="flex-1 ml-56">
-        <main className="max-w-7xl mx-auto px-6 py-6">
-          <Routes>
-            {/* Módulo CEIS — Instrumentos */}
-            <Route path="/" element={<BankPage />} />
-            <Route path="/generar" element={<GeneratorPage />} />
-            <Route path="/pruebas" element={<TestsPage />} />
-            <Route path="/aplicaciones" element={<AplicacionesPage />} />
+      <div className="flex-1 ml-56 flex flex-col min-h-0">
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <Routes>
+              {/* Módulo CEIS — Instrumentos */}
+              <Route path="/" element={<BankPage />} />
+              <Route path="/generar" element={<GeneratorPage />} />
+              <Route path="/pruebas" element={<TestsPage />} />
+              <Route path="/aplicaciones" element={<AplicacionesPage />} />
 
-            {/* Módulo Gestión Escolar */}
-            <Route path="/gestion" element={<DashboardPage />} />
-            <Route path="/colegios" element={<ColegiosPage />} />
-            <Route path="/cursos" element={<CursosPage />} />
-            <Route path="/estudiantes" element={<EstudiantesPage />} />
-            <Route path="/estudiantes/:id" element={<EstudiantePerfilPage />} />
-            <Route path="/docentes" element={<DocentesPage />} />
-            <Route path="/apoderados" element={<ApoderadosPage />} />
-            <Route path="/mensajes" element={<MensajesPage />} />
-            <Route path="/planes" element={<PlanesMejoraPage />} />
-            <Route path="/pie" element={<PIEPage />} />
-            <Route path="/libro" element={<LibroClasesPage />} />
-            <Route path="/asignaturas" element={<AsignaturasPage />} />
-            <Route path="/periodos" element={<PeriodosPage />} />
-          </Routes>
+              {/* Módulo Gestión Escolar */}
+              <Route path="/gestion" element={<DashboardPage />} />
+              <Route path="/colegios" element={<ColegiosPage />} />
+              <Route path="/cursos" element={<CursosPage />} />
+              <Route path="/estudiantes" element={<EstudiantesPage />} />
+              <Route path="/estudiantes/:id" element={<EstudiantePerfilPage />} />
+              <Route path="/docentes" element={<DocentesPage />} />
+              <Route path="/apoderados" element={<ApoderadosPage />} />
+              <Route path="/mensajes" element={<MensajesPage />} />
+              <Route path="/planes" element={<PlanesMejoraPage />} />
+              <Route path="/pie" element={<PIEPage />} />
+              <Route path="/libro" element={<LibroClasesPage />} />
+              <Route path="/asignaturas" element={<AsignaturasPage />} />
+              <Route path="/periodos" element={<PeriodosPage />} />
+            </Routes>
+          </div>
         </main>
-        <footer className="px-6 py-3 text-center text-[11px] text-slate-400 border-t border-slate-200">
+        <footer className="px-4 py-2 text-center text-[10px] text-slate-400 border-t border-slate-200 bg-white shrink-0">
           CEIS Maristas · Gestión Escolar
         </footer>
       </div>
