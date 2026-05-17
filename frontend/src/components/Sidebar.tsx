@@ -39,8 +39,35 @@ function SidebarLink({
   );
 }
 
+const CEIS_LINKS = [
+  { to: "/", label: "Banco de Ítems", icon: "🗂️" },
+  { to: "/generar", label: "Generador IA", icon: "⚡" },
+  { to: "/pruebas", label: "Pruebas", icon: "📝" },
+  { to: "/aplicaciones", label: "Aplicaciones", icon: "📋" },
+];
+
+const GESTION_LINKS = [
+  { to: "/gestion", label: "Dashboard", icon: "📊", roles: ["admin", "directivo"] },
+  { to: "/colegios", label: "Colegios", icon: "🏫", roles: ["admin", "directivo"] },
+  { to: "/cursos", label: "Cursos", icon: "👥", roles: ["admin", "directivo", "docente"] },
+  { to: "/estudiantes", label: "Estudiantes", icon: "🎓", roles: ["admin", "directivo", "orientador", "docente"] },
+  { to: "/docentes", label: "Docentes", icon: "👨‍🏫", roles: ["admin", "directivo"] },
+  { to: "/libro", label: "Libro de Clases", icon: "📖", roles: ["admin", "directivo", "docente"] },
+  { to: "/apoderados", label: "Apoderados", icon: "🤝", roles: ["admin", "directivo", "orientador"] },
+  { to: "/mensajes", label: "Mensajes", icon: "💬", roles: ["admin", "directivo", "orientador", "docente", "apoderado"] },
+  { to: "/planes", label: "Planes de Mejora", icon: "🎯", roles: ["admin", "directivo", "orientador"] },
+  { to: "/pie", label: "PIE", icon: "♿", roles: ["admin", "directivo", "orientador"] },
+  { to: "/asignaturas", label: "Asignaturas", icon: "📚", roles: ["admin", "directivo", "docente"] },
+  { to: "/periodos", label: "Períodos", icon: "📅", roles: ["admin", "directivo", "docente"] },
+];
+
 export default function Sidebar() {
   const module = useActiveModule();
+  const { usuario } = useAuth();
+  const rol = usuario?.rol || "";
+
+  const verCeis = ["admin", "orientador"].includes(rol);
+  const linksGestion = GESTION_LINKS.filter((l) => l.roles.includes(rol));
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col border-r border-slate-800 z-40">
@@ -60,38 +87,32 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {/* Módulo CEIS */}
-        <div>
-          <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "ceis" ? "text-blue-400" : "text-slate-500"}`}>
-            Módulo CEIS
+        {verCeis && (
+          <div>
+            <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "ceis" ? "text-blue-400" : "text-slate-500"}`}>
+              Módulo CEIS
+            </div>
+            <div className="space-y-1">
+              {CEIS_LINKS.map((l) => (
+                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} />
+              ))}
+            </div>
           </div>
-          <div className="space-y-1">
-            <SidebarLink to="/" label="Banco de Ítems" icon="🗂️" />
-            <SidebarLink to="/generar" label="Generador IA" icon="⚡" />
-            <SidebarLink to="/pruebas" label="Pruebas" icon="📝" />
-            <SidebarLink to="/aplicaciones" label="Aplicaciones" icon="📋" />
-          </div>
-        </div>
+        )}
 
         {/* Módulo Gestión */}
-        <div>
-          <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "gestion" ? "text-emerald-400" : "text-slate-500"}`}>
-            Gestión Escolar
+        {linksGestion.length > 0 && (
+          <div>
+            <div className={`px-3 mb-2 text-[10px] font-bold uppercase tracking-wider ${module === "gestion" ? "text-emerald-400" : "text-slate-500"}`}>
+              Gestión Escolar
+            </div>
+            <div className="space-y-1">
+              {linksGestion.map((l) => (
+                <SidebarLink key={l.to} to={l.to} label={l.label} icon={l.icon} />
+              ))}
+            </div>
           </div>
-          <div className="space-y-1">
-            <SidebarLink to="/gestion" label="Dashboard" icon="📊" />
-            <SidebarLink to="/colegios" label="Colegios" icon="🏫" />
-            <SidebarLink to="/cursos" label="Cursos" icon="👥" />
-            <SidebarLink to="/estudiantes" label="Estudiantes" icon="🎓" />
-            <SidebarLink to="/docentes" label="Docentes" icon="👨‍🏫" />
-            <SidebarLink to="/libro" label="Libro de Clases" icon="📖" />
-            <SidebarLink to="/apoderados" label="Apoderados" icon="🤝" />
-            <SidebarLink to="/mensajes" label="Mensajes" icon="💬" />
-            <SidebarLink to="/planes" label="Planes de Mejora" icon="🎯" />
-            <SidebarLink to="/pie" label="PIE" icon="♿" />
-            <SidebarLink to="/asignaturas" label="Asignaturas" icon="📚" />
-            <SidebarLink to="/periodos" label="Períodos" icon="📅" />
-          </div>
-        </div>
+        )}
       </nav>
 
       {/* Usuario + Logout */}
