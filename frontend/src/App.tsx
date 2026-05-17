@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -25,11 +25,30 @@ import PlanesMejoraPage from "./pages/PlanesMejoraPage";
 import PIEPage from "./pages/PIEPage";
 
 function AppLayout() {
+  const { usuario } = useAuth();
+  const nombre = usuario ? `${usuario.nombres?.split(" ")[0] || ""} ${usuario.apellido_paterno || ""}`.trim() : "";
+  const hoy = new Date().toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
+
   return (
-    <div className="h-screen bg-white flex">
+    <div className="h-screen bg-[#f8fafc] flex">
       <Sidebar />
       <div className="flex-1 ml-64 flex flex-col min-h-0">
-        <main className="flex-1 overflow-auto bg-slate-50/50">
+        {/* Header global */}
+        <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between shrink-0">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">
+              Hola{ nombre ? `, ${nombre}` : ""}
+            </h1>
+            <p className="text-xs text-slate-400 capitalize">{hoy}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm">
+              {nombre ? nombre.split(" ").map(n => n[0]).join("").toUpperCase() : "U"}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-6 py-6">
             <Routes>
               <Route path="/" element={<BankPage />} />
