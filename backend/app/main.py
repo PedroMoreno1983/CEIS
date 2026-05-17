@@ -40,11 +40,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Middleware de autenticación global (excepto rutas públicas)
+# Middleware de autenticación y autorización global
 PUBLIC_PATHS = {
     "/api/auth/login",
     "/api/health",
 }
+
+ROUTE_ROLES: dict[str, list[str]] = {
+    "/api/admin": ["admin"],
+    "/api/dashboard": ["admin", "directivo"],
+    "/api/colegios": ["admin", "directivo"],
+    "/api/docentes": ["admin", "directivo"],
+    "/api/cursos": ["admin", "directivo", "docente"],
+    "/api/estudiantes": ["admin", "directivo", "orientador", "docente"],
+    "/api/libro": ["admin", "directivo", "docente"],
+    "/api/planes": ["admin", "directivo", "orientador"],
+    "/api/pie": ["admin", "directivo", "orientador"],
+    "/api/apoderados": ["admin", "directivo", "orientador"],
+    "/api/mensajes": ["admin", "directivo", "orientador", "docente", "apoderado"],
+    "/api/asignaturas": ["admin", "directivo", "docente"],
+    "/api/periodos": ["admin", "directivo", "docente"],
+    "/api/citaciones": ["admin", "directivo", "orientador", "docente"],
+    "/api/items": ["admin", "orientador"],
+    "/api/generar": ["admin", "orientador"],
+    "/api/instrumentos": ["admin", "orientador"],
+    "/api/aplicaciones": ["admin", "orientador"],
+}
+
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
@@ -55,8 +77,18 @@ async def auth_middleware(request: Request, call_next):
     if not auth.startswith("Bearer "):
         return JSONResponse(status_code=401, content={"detail": "No autorizado"})
     token = auth[7:]
-    if decode_access_token(token) is None:
+    payload = decode_access_token(token)
+    if payload is None:
         return JSONResponse(status_code=401, content={"detail": "Token inválido"})
+
+    # Verificar rol por prefijo de ruta
+    rol = payload.get("rol", "")
+    for prefix, allowed in ROUTE_ROLES.items():
+        if path.startswith(prefix):
+            if rol not in allowed:
+                return JSONResponse(status_code=403, content={"detail": "No tienes permiso para esta acción"})
+            break
+
     return await call_next(request)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
