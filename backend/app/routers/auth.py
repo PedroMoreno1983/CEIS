@@ -57,6 +57,30 @@ async def get_current_usuario(
     return user
 
 
+@router.post("/auth/setup")
+async def setup_admin(db: AsyncSession = Depends(get_db)):
+    """Crea el usuario admin inicial si no existe ningún usuario en la BD."""
+    from sqlalchemy import func
+    result = await db.execute(select(func.count()).select_from(Usuario))
+    count = result.scalar_one()
+    if count > 0:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Ya existen usuarios en el sistema",
+        )
+    user = Usuario(
+        email="admin@ceis.cl",
+        password_hash=get_password_hash("ceis2026"),
+        nombres="Administrador",
+        apellido_paterno="CEIS",
+        rol="admin",
+        activo=True,
+    )
+    db.add(user)
+    await db.commit()
+    return {"ok": True, "email": user.email, "message": "Usuario admin creado"}
+
+
 @router.post("/auth/login", response_model=Token)
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
