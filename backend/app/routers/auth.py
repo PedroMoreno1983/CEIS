@@ -58,6 +58,7 @@ async def get_current_usuario(
 
 
 @router.post("/auth/setup")
+@router.get("/auth/setup")
 async def setup_admin(db: AsyncSession = Depends(get_db)):
     """Crea el usuario admin inicial si no existe ningún usuario en la BD."""
     from sqlalchemy import func
