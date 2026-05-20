@@ -34,7 +34,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174"],
+    allow_origins=["http://localhost:5174", "https://frontend-iota-five-67.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -43,6 +43,7 @@ app.add_middleware(
 # Middleware de autenticación y autorización global
 PUBLIC_PATHS = {
     "/api/auth/login",
+    "/api/auth/setup",
     "/api/health",
 }
 
