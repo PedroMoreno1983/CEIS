@@ -4,6 +4,8 @@ import { ColegiosAPI } from "../api-gestion";
 import { DashboardAPI } from "../api-dashboard";
 import type { Colegio } from "../types-gestion";
 import type { Alertas, Resumen } from "../types-dashboard";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
 
 export default function DashboardPage() {
   const [colegios, setColegios] = useState<Colegio[]>([]);
@@ -36,33 +38,33 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      {/* Selector de colegio estilizado */}
-      <div className="flex items-center justify-between">
+      <PageHeader title="Gestión Escolar" subtitle="Resumen y alertas del colegio">
         <div className="relative">
           <select
             value={colegioId}
             onChange={(e) => setColegioId(e.target.value)}
-            className="appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2 pr-10 text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 cursor-pointer"
+            className="appearance-none bg-background border border-input rounded-lg px-4 py-2 pr-10 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
           >
             {colegios.map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
           </select>
-          <svg className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5"/></svg>
+          <svg className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5"/></svg>
         </div>
-        {colegioSel && (
-          <span className="text-xs text-slate-400">{colegioSel.direccion || ""}</span>
-        )}
-      </div>
+      </PageHeader>
+
+      {colegioSel && (
+        <p className="text-xs text-muted-foreground -mt-3">{colegioSel.direccion || ""}</p>
+      )}
 
       {cargando ? (
-        <div className="flex items-center justify-center py-20 text-slate-400 gap-2">
-          <div className="w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />
+        <div className="flex items-center justify-center py-20 text-muted-foreground gap-2">
+          <div className="w-5 h-5 border-2 border-muted border-t-primary rounded-full animate-spin" />
           Cargando…
         </div>
       ) : resumen ? (
         <>
-          {/* KPIs — fila única con iconos, sin arcoíris */}
+          {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <Kpi label="Estudiantes" value={resumen.total_estudiantes} icon={<UsersIcon />} />
             <Kpi label="Docentes" value={resumen.total_docentes} icon={<TeacherIcon />} />
@@ -114,7 +116,7 @@ export default function DashboardPage() {
           )}
         </>
       ) : (
-        <div className="text-center py-20 text-slate-400">Selecciona un colegio.</div>
+        <div className="text-center py-20 text-muted-foreground">Selecciona un colegio.</div>
       )}
     </div>
   );
@@ -125,15 +127,15 @@ function Kpi({ label, value, icon, alert }: {
   label: string; value: string | number; icon: React.ReactNode; alert?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 hover:shadow-sm transition-shadow">
+    <Card className="flex items-center gap-3 hover:shadow-md transition-shadow" padding="normal">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${alert ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-500"}`}>
         {icon}
       </div>
       <div>
-        <div className={`text-xl font-bold ${alert ? "text-red-500" : "text-slate-800"}`}>{value}</div>
-        <div className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">{label}</div>
+        <div className={`text-xl font-bold ${alert ? "text-red-500" : "text-foreground"}`}>{value}</div>
+        <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">{label}</div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -153,13 +155,13 @@ function AlertaCard({ titulo, subtitulo, icon, color, items, empty, suffix = "" 
   const c = colorMap[color];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+    <Card padding="none" className="overflow-hidden">
       <div className={`px-4 py-3 ${c.bg} border-b ${c.border}`}>
         <div className="flex items-center gap-2">
           <span className={c.text}>{icon}</span>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">{titulo}</h3>
-            <p className="text-[11px] text-slate-500">{subtitulo}</p>
+            <h3 className="text-sm font-bold text-foreground">{titulo}</h3>
+            <p className="text-[11px] text-muted-foreground">{subtitulo}</p>
           </div>
           {items.length > 0 && (
             <span className={`ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full ${c.badge}`}>{items.length}</span>
@@ -168,16 +170,16 @@ function AlertaCard({ titulo, subtitulo, icon, color, items, empty, suffix = "" 
       </div>
       <div className="p-2">
         {items.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-6">{empty}</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{empty}</p>
         ) : (
           <div className="space-y-1">
             {items.map((item) => (
               <Link 
                 key={item.id} 
                 to={`/estudiantes/${item.id}`}
-                className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-accent transition-colors"
               >
-                <span className="text-sm font-medium text-slate-700">{item.nombre}</span>
+                <span className="text-sm font-medium text-foreground">{item.nombre}</span>
                 {item.metrica != null && (
                   <span className={`text-xs font-bold px-2 py-1 rounded-lg ${c.badge}`}>
                     {item.metrica}{suffix}
@@ -188,7 +190,7 @@ function AlertaCard({ titulo, subtitulo, icon, color, items, empty, suffix = "" 
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

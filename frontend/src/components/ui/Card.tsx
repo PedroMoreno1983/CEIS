@@ -1,3 +1,6 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
 export default function Card({
   children,
   className = "",
@@ -11,7 +14,11 @@ export default function Card({
     padding === "none" ? "" : padding === "large" ? "p-6" : "p-5";
   return (
     <div
-      className={`bg-white rounded-xl border border-slate-200 shadow-sm ${paddingClass} ${className}`}
+      className={cn(
+        "rounded-xl border bg-card text-card-foreground shadow-sm",
+        paddingClass,
+        className
+      )}
     >
       {children}
     </div>

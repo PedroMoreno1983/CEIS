@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/Tabs";
+import { Input } from "../components/ui/Input";
+import { Label } from "../components/ui/Label";
+import { Textarea } from "../components/ui/Textarea";
 
 import { ColegiosAPI, CursosAPI } from "../api-gestion";
 import {
@@ -102,40 +106,32 @@ export default function LibroClasesPage() {
 
       {/* Tabs */}
       {cursoId && (
-        <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl w-fit">
-          {(["notas", "asistencia", "anotaciones"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                tab === t
-                  ? "bg-white text-blue-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              {t === "notas" ? "Notas" : t === "asistencia" ? "Asistencia" : "Anotaciones"}
-            </button>
-          ))}
-        </div>
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList>
+            <TabsTrigger value="notas">Notas</TabsTrigger>
+            <TabsTrigger value="asistencia">Asistencia</TabsTrigger>
+            <TabsTrigger value="anotaciones">Anotaciones</TabsTrigger>
+          </TabsList>
+          <TabsContent value="notas">
+            <TabNotas
+              cursoId={cursoId}
+              periodoId={periodoId}
+              estudiantes={estudiantes}
+              carga={carga}
+              cursoLabel={cursoSel ? `${NIVEL_CURSO_LABELS[cursoSel.nivel]} ${cursoSel.letra}` : ""}
+              periodoLabel={periodoSel?.nombre}
+            />
+          </TabsContent>
+          <TabsContent value="asistencia">
+            <TabAsistencia cursoId={cursoId} estudiantes={estudiantes} />
+          </TabsContent>
+          <TabsContent value="anotaciones">
+            <TabAnotaciones cursoId={cursoId} estudiantes={estudiantes} carga={carga} />
+          </TabsContent>
+        </Tabs>
       )}
 
-      {/* Contenido */}
-      {!cursoId ? (
-        <EmptyState />
-      ) : tab === "notas" ? (
-        <TabNotas
-          cursoId={cursoId}
-          periodoId={periodoId}
-          estudiantes={estudiantes}
-          carga={carga}
-          cursoLabel={cursoSel ? `${NIVEL_CURSO_LABELS[cursoSel.nivel]} ${cursoSel.letra}` : ""}
-          periodoLabel={periodoSel?.nombre}
-        />
-      ) : tab === "asistencia" ? (
-        <TabAsistencia cursoId={cursoId} estudiantes={estudiantes} />
-      ) : (
-        <TabAnotaciones cursoId={cursoId} estudiantes={estudiantes} carga={carga} />
-      )}
+      {!cursoId && <EmptyState />}
     </div>
   );
 }

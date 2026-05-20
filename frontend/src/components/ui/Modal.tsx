@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Modal({
   open,
@@ -35,19 +36,25 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
-        className={`relative bg-white rounded-xl shadow-xl w-full ${sizeClass} mx-4 max-h-[90vh] overflow-y-auto`}
+        className={cn(
+          "relative bg-background rounded-xl border shadow-lg w-full mx-4 max-h-[90vh] overflow-y-auto",
+          sizeClass
+        )}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold leading-none tracking-tight">{title}</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 text-xl leading-none"
+            className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
           >
-            ×
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+            <span className="sr-only">Cerrar</span>
           </button>
         </div>
         <div className="px-6 py-5">{children}</div>
