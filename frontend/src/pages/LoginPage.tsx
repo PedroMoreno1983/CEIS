@@ -1,18 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Input } from "../components/ui/Input";
+import { Label } from "../components/ui/Label";
+import Button from "../components/ui/Button";
+import apiClient from "../api-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [setupMsg, setSetupMsg] = useState("");
+  const [setupLoading, setSetupLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSetupMsg("");
     setLoading(true);
     try {
       await login(email, password);
@@ -21,6 +28,23 @@ export default function LoginPage() {
       setError(err.response?.data?.detail || "Credenciales inválidas");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSetup = async () => {
+    setSetupLoading(true);
+    setSetupMsg("");
+    setError("");
+    try {
+      const res = await apiClient.post("/auth/setup");
+      setSetupMsg(res.data.message || "Usuario admin creado");
+      setEmail("admin@ceis.cl");
+      setPassword("ceis2026");
+    } catch (err: any) {
+      const detail = err.response?.data?.detail || "No se pudo crear el usuario";
+      setSetupMsg(detail);
+    } finally {
+      setSetupLoading(false);
     }
   };
 
@@ -33,25 +57,25 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="admin@ceis.cl"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="password">Contraseña</Label>
+            <Input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
               required
             />
@@ -63,16 +87,28 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
-          >
+          {setupMsg && (
+            <div className={`text-sm px-3 py-2 rounded-lg ${setupMsg.includes("creado") ? "text-emerald-700 bg-emerald-50" : "text-amber-700 bg-amber-50"}`}>
+              {setupMsg}
+            </div>
+          )}
+
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Ingresando..." : "Ingresar"}
-          </button>
+          </Button>
         </form>
 
-        <div className="mt-6 text-center text-xs text-slate-400">
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <button
+            onClick={handleSetup}
+            disabled={setupLoading}
+            className="w-full text-xs text-slate-500 hover:text-slate-700 py-2 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            {setupLoading ? "Creando..." : "¿Primera vez? Crear usuario admin inicial"}
+          </button>
+        </div>
+
+        <div className="mt-4 text-center text-xs text-slate-400">
           CEIS 2026 · Sistema de Instrumentos y Gestión Escolar
         </div>
       </div>
