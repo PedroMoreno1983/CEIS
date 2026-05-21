@@ -13,8 +13,6 @@ from .routers import dashboard
 from .routers import citaciones
 from .routers import admin
 from .routers import auth
-from .models import usuario  # noqa: F401 — registra modelo
-
 # Resolver UPLOADS_DIR: env var > volumen Railway /app/uploads > path relativo (local)
 _env = os.environ.get("UPLOADS_DIR")
 if _env:
@@ -31,6 +29,14 @@ app = FastAPI(
     description="API para generar y gestionar instrumentos de orientación vocacional CEIS Maristas",
     version="1.0.0",
 )
+
+from .core.database import Base, engine
+from .models import usuario  # noqa: F401 — registra modelo
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 app.add_middleware(
     CORSMiddleware,
