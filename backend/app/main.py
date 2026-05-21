@@ -30,13 +30,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-from .core.database import Base, engine
 from .models import usuario  # noqa: F401 — registra modelo
-
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 app.add_middleware(
     CORSMiddleware,
