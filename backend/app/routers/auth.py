@@ -62,65 +62,71 @@ async def get_current_usuario(
 async def setup_admin(db: AsyncSession = Depends(get_db)):
     """Crea el usuario admin inicial si no existe ningún usuario en la BD.
     También crea la tabla usuario (y el tipo enum) si no existen."""
-    # Verificar si la tabla existe
-    check_sql = text("""
-        SELECT EXISTS (
-            SELECT FROM information_schema.tables
-            WHERE table_schema = 'public'
-            AND table_name = 'usuario'
-        )
-    """)
-    result = await db.execute(check_sql)
-    table_exists = result.scalar_one()
-
-    if not table_exists:
-        # Crear tipo enum si no existe
-        await db.execute(text("""
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'rol_usuario') THEN
-                    CREATE TYPE rol_usuario AS ENUM ('admin', 'directivo', 'orientador', 'docente', 'apoderado');
-                END IF;
-            END $$;
-        """))
-        # Crear tabla sin constraints de FK (por si gestion.colegio/docente no existen aún)
-        await db.execute(text("""
-            CREATE TABLE public.usuario (
-                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                email TEXT NOT NULL UNIQUE,
-                password_hash TEXT NOT NULL,
-                nombres TEXT NOT NULL,
-                apellido_paterno TEXT NOT NULL,
-                apellido_materno TEXT,
-                rol rol_usuario NOT NULL DEFAULT 'docente',
-                colegio_id UUID,
-                docente_id UUID,
-                activo BOOLEAN NOT NULL DEFAULT TRUE,
-                ultimo_acceso TIMESTAMPTZ,
-                creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    try:
+        # Verificar si la tabla existe
+        check_sql = text("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                AND table_name = 'usuario'
             )
-        """))
-        await db.commit()
+        """)
+        result = await db.execute(check_sql)
+        table_exists = result.scalar_one()
 
-    result = await db.execute(select(func.count()).select_from(Usuario))
-    count = result.scalar_one()
-    if count > 0:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Ya existen usuarios en el sistema",
+        if not table_exists:
+            # Crear tipo enum si no existe
+            await db.execute(text("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'rol_usuario') THEN
+                        CREATE TYPE rol_usuario AS ENUM ('admin', 'directivo', 'orientador', 'docente', 'apoderado');
+                    END IF;
+                END $$;
+            """))
+            # Crear tabla sin constraints de FK (por si gestion.colegio/docente no existen aún)
+            await db.execute(text("""
+                CREATE TABLE public.usuario (
+                    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                    email TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL,
+                    nombres TEXT NOT NULL,
+                    apellido_paterno TEXT NOT NULL,
+                    apellido_materno TEXT,
+                    rol rol_usuario NOT NULL DEFAULT 'docente',
+                    colegio_id UUID,
+                    docente_id UUID,
+                    activo BOOLEAN NOT NULL DEFAULT TRUE,
+                    ultimo_acceso TIMESTAMPTZ,
+                    creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """))
+            await db.commit()
+
+        result = await db.execute(select(func.count()).select_from(Usuario))
+        count = result.scalar_one()
+        if count > 0:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Ya existen usuarios en el sistema",
+            )
+        user = Usuario(
+            email="admin@ceis.cl",
+            password_hash=get_password_hash("ceis2026"),
+            nombres="Administrador",
+            apellido_paterno="CEIS",
+            rol="admin",
+            activo=True,
         )
-    user = Usuario(
-        email="admin@ceis.cl",
-        password_hash=get_password_hash("ceis2026"),
-        nombres="Administrador",
-        apellido_paterno="CEIS",
-        rol="admin",
-        activo=True,
-    )
-    db.add(user)
-    await db.commit()
-    return {"ok": True, "email": user.email, "message": "Usuario admin creado"}
+        db.add(user)
+        await db.commit()
+        return {"ok": True, "email": user.email, "message": "Usuario admin creado"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        return {"ok": False, "error": str(e), "traceback": traceback.format_exc()}
 
 
 @router.post("/auth/login", response_model=Token)
