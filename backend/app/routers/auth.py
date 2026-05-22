@@ -75,6 +75,8 @@ async def setup_admin(db: AsyncSession = Depends(get_db)):
         table_exists = result.scalar_one()
 
         if not table_exists:
+            # Crear extensiones necesarias
+            await db.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'))
             # Crear tipo enum si no existe
             await db.execute(text("""
                 DO $$
