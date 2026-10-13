@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from sqlalchemy import select, text, func
@@ -58,10 +58,17 @@ async def get_current_usuario(
 
 
 @router.post("/auth/setup")
-@router.get("/auth/setup")
-async def setup_admin(db: AsyncSession = Depends(get_db)):
+async def setup_admin(
+    x_setup_token: Annotated[str | None, Header()] = None,
+    db: AsyncSession = Depends(get_db),
+):
     """Crea el usuario admin inicial si no existe ningún usuario en la BD.
     También crea la tabla usuario (y el tipo enum) si no existen."""
+    import os, secrets as _secrets
+    setup_token = os.getenv("CEIS_SETUP_TOKEN")
+    admin_password = os.getenv("CEIS_ADMIN_PASSWORD")
+    if not setup_token or not admin_password or not x_setup_token or not _secrets.compare_digest(x_setup_token, setup_token):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
     try:
         # Verificar si la tabla existe
         check_sql = text("""
@@ -115,7 +122,7 @@ async def setup_admin(db: AsyncSession = Depends(get_db)):
             )
         user = Usuario(
             email="admin@ceis.cl",
-            password_hash=get_password_hash("ceis2026"),
+            password_hash=get_password_hash(admin_password),
             nombres="Administrador",
             apellido_paterno="CEIS",
             rol="admin",
@@ -127,8 +134,7 @@ async def setup_admin(db: AsyncSession = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        return {"ok": False, "error": str(e), "traceback": traceback.format_exc()}
+        raise HTTPException(status_code=500, detail="Error en setup inicial")
 
 
 @router.post("/auth/login", response_model=Token)

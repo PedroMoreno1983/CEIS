@@ -39,7 +39,6 @@ export default function LoginPage() {
       const res = await apiClient.post("/auth/setup");
       setSetupMsg(res.data.message || "Usuario admin creado");
       setEmail("admin@ceis.cl");
-      setPassword("ceis2026");
     } catch (err: any) {
       const detail = err.response?.data?.detail || "No se pudo crear el usuario";
       setSetupMsg(detail);

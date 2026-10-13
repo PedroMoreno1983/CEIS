@@ -135,3 +135,6 @@ npm run dev
 - La generación depende de la calidad del LLM y los prompts; siempre requiere revisión humana antes de aplicar.
 - No hay validación psicométrica empírica (índices de discriminación, dificultad real) — se asignan valores propuestos por el LLM.
 - El banco semilla no es exhaustivo: contiene ítems representativos de cada categoría, no la batería completa.
+
+## Setup inicial (seguridad)
+`POST /api/auth/setup` solo funciona si el backend tiene `CEIS_SETUP_TOKEN` y `CEIS_ADMIN_PASSWORD` definidos y la solicitud envía el header `X-Setup-Token`. Sin eso responde 404. Quita ambas variables después de crear el admin.
